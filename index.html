@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Word Grid</title>
+  <meta name="theme-color" content="#121936" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Word Grid" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <style>
+    :root{
+      --bg:#0c1022;
+      --panel:#141b37;
+      --panel-2:#1a2346;
+      --card:#202a52;
+      --card-2:#293665;
+      --ink:#f4f7ff;
+      --muted:#aeb8d9;
+      --dim:#6e7798;
+      --line:rgba(255,255,255,.12);
+      --accent:#7cc7ff;
+      --accent-2:#a98cff;
+      --good:#4fba6f;
+      --warn:#d1a845;
+      --bad:#4c5877;
+      --danger:#ff6b7a;
+      --shadow:0 18px 50px rgba(0,0,0,.35);
+      --radius:20px;
+      --cell:48px;
+      color-scheme:dark;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    [data-theme="light"]{
+      --bg:#eef3ff;
+      --panel:#ffffff;
+      --panel-2:#eef3ff;
+      --card:#f8faff;
+      --card-2:#e8efff;
+      --ink:#121936;
+      --muted:#526181;
+      --dim:#7b87a4;
+      --line:rgba(20,30,60,.14);
+      --accent:#246bff;
+      --accent-2:#7b46ff;
+      --good:#2f9f55;
+      --warn:#bd8b1e;
+      --bad:#8a95aa;
+      --danger:#d93d56;
+      --shadow:0 18px 50px rgba(28,43,83,.16);
+      color-scheme:light;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;margin:0;background:radial-gradient(circle at 50% -10%,rgba(124,199,255,.22),transparent 36%),var(--bg);color:var(--ink);overflow:hidden}
+    button,input,select{font:inherit;color:inherit}
+    button{border:0;cursor:pointer}
+    .app{height:100dvh;max-width:620px;margin:0 auto;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 22%),var(--bg);position:relative;display:flex;flex-direction:column;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+    .topbar{height:64px;min-height:64px;display:flex;align-items:center;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--line);background:rgba(12,16,34,.76);backdrop-filter:blur(14px);z-index:10}
+    [data-theme="light"] .topbar{background:rgba(238,243,255,.82)}
+    .iconBtn{width:42px;height:42px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);display:grid;place-items:center;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+    .titleWrap{flex:1;min-width:0;text-align:center;margin-right:42px}
+    .title{font-size:1.05rem;font-weight:900;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .subtitle{font-size:.72rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .screen{display:none;flex:1;min-height:0;overflow:hidden;flex-direction:column}
+    .screen.active{display:flex}
+    .scroll{flex:1;min-height:0;overflow:auto;padding:18px 16px calc(24px + env(safe-area-inset-bottom,0px));scrollbar-color:var(--accent) rgba(255,255,255,.08);scrollbar-width:thin}
+    .scroll::-webkit-scrollbar,.boardsScroll::-webkit-scrollbar,.modalBody::-webkit-scrollbar{width:10px;height:10px}
+    .scroll::-webkit-scrollbar-track,.boardsScroll::-webkit-scrollbar-track,.modalBody::-webkit-scrollbar-track{background:rgba(255,255,255,.07);border-radius:999px}
+    .scroll::-webkit-scrollbar-thumb,.boardsScroll::-webkit-scrollbar-thumb,.modalBody::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+    .hero{padding:20px;border-radius:28px;background:linear-gradient(135deg,rgba(124,199,255,.22),rgba(169,140,255,.14)),var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:16px;position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;inset:auto -40px -70px auto;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08)}
+    .hero h1{margin:0 0 8px;font-size:2rem;line-height:1;font-weight:950;letter-spacing:-.04em}
+    .hero p{margin:0;color:var(--muted);line-height:1.45;max-width:34em}
+    .versionPill{display:inline-flex;align-items:center;gap:8px;font-size:.76rem;color:var(--ink);font-weight:850;background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:999px;padding:7px 10px;margin-top:16px}
+    .tileGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .tile{min-height:126px;padding:16px;border-radius:24px;background:linear-gradient(160deg,var(--card),var(--panel));border:1px solid var(--line);text-align:left;box-shadow:0 14px 28px rgba(0,0,0,.15);position:relative;overflow:hidden;transition:transform .16s ease, border-color .16s ease, background .16s ease}
+    .tile:active{transform:scale(.98)}
+    .tile strong{display:block;font-size:1.05rem;font-weight:950;margin-bottom:7px;line-height:1.08}
+    .tile span{display:block;color:var(--muted);font-size:.82rem;line-height:1.32;position:relative;z-index:1}
+    .tile .emoji{font-size:1.35rem;margin-bottom:10px;display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:13px;background:rgba(255,255,255,.09);border:1px solid var(--line)}
+    .tile.big{grid-column:span 2;min-height:96px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+    .section{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:16px;margin-bottom:14px;box-shadow:0 12px 26px rgba(0,0,0,.12)}
+    .section h2,.section h3{margin:0 0 12px;font-size:1.05rem;letter-spacing:-.02em}
+    .section p{color:var(--muted);line-height:1.42;margin:8px 0 0;font-size:.9rem}
+    .choiceGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .choiceGrid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .choice{padding:12px 10px;border-radius:16px;border:1px solid var(--line);background:var(--panel-2);font-weight:850;color:var(--muted);text-align:center;min-height:46px}
+    .choice.active{background:linear-gradient(135deg,rgba(124,199,255,.35),rgba(169,140,255,.24));border-color:rgba(124,199,255,.7);color:var(--ink);box-shadow:0 0 0 2px rgba(124,199,255,.08) inset}
+    .choice small{display:block;font-size:.68rem;color:var(--muted);font-weight:750;margin-top:2px}
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:18px;padding:12px 14px;background:var(--panel-2);border:1px solid var(--line);margin-top:10px}
+    .toggleText strong{display:block;font-size:.95rem}.toggleText span{display:block;font-size:.78rem;color:var(--muted);margin-top:2px;line-height:1.2}
+    .switch{width:56px;height:32px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid var(--line);position:relative;flex:0 0 auto;transition:.18s}
+    .switch:after{content:"";position:absolute;width:24px;height:24px;top:3px;left:3px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:.18s}
+    .switch.on{background:linear-gradient(135deg,var(--accent),var(--accent-2))}.switch.on:after{left:27px}
+    .primaryBtn,.secondaryBtn,.dangerBtn{width:100%;min-height:52px;border-radius:18px;font-weight:950;letter-spacing:.01em;border:1px solid var(--line);box-shadow:0 12px 26px rgba(0,0,0,.16)}
+    .primaryBtn{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white}.secondaryBtn{background:var(--panel-2);color:var(--ink)}.dangerBtn{background:rgba(255,107,122,.16);color:var(--danger);border-color:rgba(255,107,122,.36)}
+    .gameMeta{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel);overflow:auto;scrollbar-width:none}
+    .gameMeta::-webkit-scrollbar{display:none}.metaPill{white-space:nowrap;border-radius:999px;padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);font-size:.76rem;color:var(--muted);font-weight:850}.metaPill.good{color:white;background:rgba(79,186,111,.7)}.metaPill.warn{color:white;background:rgba(209,168,69,.7)}
+    .gameArea{display:flex;flex-direction:column;flex:1;min-height:0}.boardsScroll{flex:1;min-height:0;overflow:auto;padding:14px 12px;scrollbar-color:var(--accent) rgba(255,255,255,.08);scrollbar-width:thin}
+    .boards{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}.boards.single{display:flex;justify-content:center;align-items:flex-start}.boards.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.boards.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .boardCard{border-radius:20px;background:rgba(255,255,255,.04);border:1px solid var(--line);padding:10px;min-width:0}.boardCard.singleBoard{width:max-content;max-width:100%;margin:0 auto;padding:4px;background:transparent;border:0;box-shadow:none}.boardCard.solved{border-color:rgba(79,186,111,.5);box-shadow:0 0 0 1px rgba(79,186,111,.14) inset}.boardCard.failed{border-color:rgba(255,107,122,.45)}
+    .boardHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;color:var(--muted);font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.boardCard.singleBoard .boardHead{display:none}.answerReveal{font-size:.72rem;color:var(--accent);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .grid{display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center}.guessRow{display:flex;flex-direction:row;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}.cell{width:var(--cell-size,var(--cell));height:var(--cell-size,var(--cell));flex:0 0 var(--cell-size,var(--cell));border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;text-transform:uppercase;font-weight:950;font-size:calc(var(--cell-size,var(--cell)) * .45);background:var(--panel-2);box-shadow:0 6px 12px rgba(0,0,0,.10);transition:transform .14s ease, background .18s ease, border-color .18s ease}.cell.filled{border-color:rgba(255,255,255,.28)}.cell.correct{background:var(--good);border-color:var(--good);color:white}.cell.present{background:var(--warn);border-color:var(--warn);color:white}.cell.absent{background:var(--bad);border-color:var(--bad);color:white}.cell.target{box-shadow:0 0 0 2px rgba(255,255,255,.12) inset}.cell.pop{animation:pop .18s ease}.cell.flip{animation:flip .36s ease}
+    @keyframes pop{50%{transform:scale(1.08)}}@keyframes flip{50%{transform:rotateX(88deg) scale(.98)}}
+    .targetPattern{margin:10px auto 4px;text-align:center}.targetPattern .label{font-size:.76rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.targetCells{display:flex;justify-content:center;gap:5px}.reverseHint{display:inline-flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 12px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:.8rem;color:var(--muted);font-weight:900}.reverseHint strong{color:var(--ink);letter-spacing:.08em}.guessRow.activeReverse .cell{box-shadow:0 0 0 2px var(--accent),0 8px 16px rgba(0,0,0,.18)}.guessRow.lockedReverse .cell{filter:saturate(.9) brightness(.9)}
+    .keyboardWrap{padding:10px 7px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:rgba(12,16,34,.88);backdrop-filter:blur(14px)}[data-theme="light"] .keyboardWrap{background:rgba(238,243,255,.92)}
+    .buffer{min-height:26px;text-align:center;color:var(--muted);font-weight:900;font-size:.8rem;margin-bottom:6px}.kbdRow{display:flex;gap:5px;justify-content:center;margin-bottom:6px}.key{height:44px;min-width:0;flex:1;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);font-weight:950;text-transform:uppercase;color:var(--ink);box-shadow:0 5px 10px rgba(0,0,0,.12)}.key.wide{flex:1.55;font-size:.72rem}.key.correct{background:var(--good);color:white}.key.present{background:var(--warn);color:white}.key.absent{background:var(--bad);color:white}.key:active{transform:translateY(1px)}
+
+    .pokemonBankBar{margin:0 0 8px}.pokemonBankBtn{width:100%;min-height:48px;border-radius:16px;border:1px solid rgba(124,199,255,.34);background:linear-gradient(135deg,rgba(124,199,255,.18),rgba(169,140,255,.11)),var(--panel-2);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;text-align:left;box-shadow:0 8px 18px rgba(0,0,0,.12)}.pokemonBankBtn strong{display:block;font-size:.88rem;font-weight:950}.pokemonBankBtn small{display:block;font-size:.68rem;color:var(--muted);font-weight:800;margin-top:1px;line-height:1.15}.pokemonBankBtn .bankAction{font-size:.76rem;font-weight:950;color:white;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:999px;padding:7px 10px;white-space:nowrap}.bankSearch{width:100%;height:46px;border-radius:16px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:0 13px;font-weight:850;outline:none;margin-bottom:10px}.bankSearch:focus{border-color:rgba(124,199,255,.7);box-shadow:0 0 0 3px rgba(124,199,255,.12)}.bankFine{font-size:.84rem;color:var(--muted);line-height:1.35;margin-bottom:12px}.bankModalCount{font-size:.75rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}.bankModalGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.bankChoice{min-height:42px;border-radius:13px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-weight:900;font-size:.86rem;padding:8px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bankChoice.active{background:linear-gradient(135deg,rgba(124,199,255,.38),rgba(169,140,255,.26));border-color:rgba(124,199,255,.72);box-shadow:0 0 0 2px rgba(124,199,255,.08) inset}.bankChoice:active,.pokemonBankBtn:active{transform:translateY(1px)}
+    .toast{position:absolute;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);max-width:calc(100% - 30px);padding:12px 14px;border-radius:16px;background:#10162e;color:#fff;border:1px solid rgba(255,255,255,.16);box-shadow:var(--shadow);opacity:0;pointer-events:none;z-index:40;font-weight:850;text-align:center;line-height:1.25;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .modalShade{position:absolute;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;z-index:50}.modalShade.show{display:flex}.modal{width:100%;max-height:86%;background:var(--panel);border:1px solid var(--line);border-radius:28px 28px 0 0;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}.modalHead{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid var(--line)}.modalHead h2{font-size:1.1rem;margin:0}.modalBody{padding:16px;overflow:auto;color:var(--muted);line-height:1.45}.modalBody strong{color:var(--ink)}.modalActions{padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);display:grid;gap:10px}
+    .statsCard{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:12px}.statsTitle{font-weight:950;margin-bottom:8px}.statGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.statBox{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:9px;text-align:center}.statBox strong{display:block;font-size:1.05rem}.statBox span{font-size:.68rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}.distRow{display:grid;grid-template-columns:28px 1fr 34px;gap:8px;align-items:center;margin:6px 0}.distBar{height:18px;border-radius:999px;background:var(--panel-2);overflow:hidden;border:1px solid var(--line)}.distFill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));min-width:4px}.emptyState{padding:30px 18px;text-align:center;color:var(--muted);border-radius:22px;background:var(--panel);border:1px dashed var(--line)}
+    .miniNote{font-size:.78rem;color:var(--muted);line-height:1.35;margin-top:10px}.hidden{display:none!important}
+    @media (max-width:430px){:root{--cell:43px}.tileGrid{gap:10px}.tile{min-height:118px;padding:14px}.boards.cols4{grid-template-columns:repeat(2,minmax(0,1fr))}.choiceGrid.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:360px){:root{--cell:38px}.cell{border-radius:8px}.guessRow{gap:4px}.grid{gap:4px}.key{height:40px;border-radius:9px}.tileGrid{grid-template-columns:1fr}.tile.big{grid-column:auto}.tile{min-height:112px}.choiceGrid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <button class="iconBtn" id="backBtn" aria-label="Back">‹</button>
+    <div class="titleWrap"><div class="title" id="topTitle">Word Grid</div><div class="subtitle" id="topSubtitle">A little Wordle playground</div></div>
+  </header>
+
+  <section class="screen active" id="homeScreen">
+    <div class="scroll">
+      <div class="hero">
+        <h1>Word Grid</h1>
+        <p>One clean, ad-free home for daily puzzles, unlimited games, multi-board chaos, evil mode, reverse patterns, and Pokémon name puzzles.</p>
+        <div class="versionPill">v1.0.8 · local-first PWA</div>
+      </div>
+      <div id="continueSlot"></div>
+      <div class="tileGrid" id="modeTiles"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="setupScreen">
+    <div class="scroll">
+      <div class="section">
+        <h2 id="setupTitle">Mode</h2>
+        <p id="setupDesc"></p>
+      </div>
+      <div class="section">
+        <h3>Puzzle Type</h3>
+        <div class="choiceGrid" id="dailyChoices"></div>
+        <p class="miniNote">Daily puzzles are deterministic for each mode and date. Unlimited games are random.</p>
+      </div>
+      <div class="section" id="boardSection">
+        <h3>Boards</h3>
+        <div class="choiceGrid three" id="boardChoices"></div>
+        <p class="miniNote">The guess limit is locked to the board count.</p>
+      </div>
+      <div class="section" id="lengthSection">
+        <h3>Word Length</h3>
+        <div class="choiceGrid three" id="lengthChoices"></div>
+      </div>
+      <div class="section" id="hardSection">
+        <h3>Rules</h3>
+        <button class="toggle" id="hardToggle" type="button">
+          <span class="toggleText"><strong>Hard Mode</strong><span>Use revealed hints in later guesses. Separate stats are tracked.</span></span>
+          <span class="switch" id="hardSwitch"></span>
+        </button>
+      </div>
+      <button class="primaryBtn" id="startBtn">Start Puzzle</button>
+      <p class="miniNote" id="setupFinePrint"></p>
+    </div>
+  </section>
+
+  <section class="screen" id="gameScreen">
+    <div class="gameMeta" id="gameMeta"></div>
+    <div class="gameArea">
+      <div class="targetPattern hidden" id="targetPattern"></div>
+      <div class="boardsScroll"><div class="boards" id="boards"></div></div>
+      <div class="keyboardWrap">
+        <div class="pokemonBankBar hidden" id="pokemonBankBar"></div>
+        <div class="buffer" id="buffer"></div>
+        <div id="keyboard"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="statsScreen">
+    <div class="scroll">
+      <div class="section"><h2>Stats</h2><p>Stats are separated by mode, daily/unlimited, board count, word length, and hard mode.</p></div>
+      <div id="statsList"></div>
+      <button class="dangerBtn" id="clearStatsBtn">Clear All Stats</button>
+    </div>
+  </section>
+
+  <section class="screen" id="settingsScreen">
+    <div class="scroll">
+      <div class="section">
+        <h2>Settings</h2>
+        <button class="toggle" id="themeToggle" type="button">
+          <span class="toggleText"><strong>Light Theme</strong><span>Switch between dark navy and light mode.</span></span>
+          <span class="switch" id="themeSwitch"></span>
+        </button>
+      </div>
+      <div class="section">
+        <h3>Data</h3>
+        <button class="secondaryBtn" id="clearCurrentBtn">Clear Saved Current Game</button>
+        <p class="miniNote">Stats are not affected unless you use the clear stats button on the Stats screen.</p>
+      </div>
+      <div class="section"><h3>Word Banks</h3><p id="bankSummary"></p></div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+  <div class="modalShade" id="modalShade">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalHead"><h2 id="modalTitle">Result</h2><button class="iconBtn" id="modalClose">×</button></div>
+      <div class="modalBody" id="modalBody"></div>
+      <div class="modalActions" id="modalActions"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+const VERSION = '1.0.10';
+const STORAGE = {
+  current: 'word-grid-current-v1',
+  stats: 'word-grid-stats-v1',
+  settings: 'word-grid-settings-v1',
+  completedDaily: 'word-grid-completed-daily-v1'
+};
+const MULTI_LIMITS = {1:6,2:7,4:9,8:13,16:21,32:37,64:69};
+const LETTER_ROWS = ['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];
+const STATE = {
+  screen:'home',
+  setup:null,
+  game:null,
+  buffer:''
+};
+
+const RAW_STANDARD_4 = `able ache acid aged airy aloe also amid apex aqua arch area atom aunt auto axle balm bank base bask bath beam bear beat belt bend bent best beta bias bird bite boat body boil bold bolt bond bone book boom boot bore born boss bout bowl brim brow buck bulb bulk burn bush busy cage cake calm camp cane cape card care cart case cash cave char chef chew chin chip chop chum cite city clad clam clan clay clip club clue coal coat coax code coil coin cold colt come cool cord core cost cove crab cram crew crib crop crow cube curb cure curl cute damp dare dark dart dash date dawn dead deaf deal dear deck deed deem deep deer deft deny dial dice diet dime dine dirt disk dive dock doll dome doom door dove down draw drip drop drum duck duel dusk duty each earn ease east easy echo edge edit ever exam exit face fact fade fair fake fame fare farm fast fate fawn fear feed feel fern file film find fine fire firm fish fizz flag flap flat flaw flex flip flow foam foil fold fond food fool foot fork fort foul four free fret frog from fuel full fund fury gain game gate gave gaze gear gift girl give glad glow glue goal goat gold golf gone good gown grab gray grim grin grip grit grow gulf hair half hall halo hand hard harm harp hate have haze head heal heap hear heat held help herd here hero hide high hill hint hive hold hole holy home hoof hook hope horn host hour huge hulk hunt hush idea idle inch into iris iron item jade jazz joke jolt judo jump junk just keep kiln kind king kite knee knit knot lace lack lady lake lamb land lane lard late lawn lazy leaf leak lean leap left lend lens liar life lift like limb lime line link lion list live load loaf loan lock loft lone long look loom loop lord lore loud love luck lunar made mage mail main make male many mare mark mask mate maze meal mean meat meet melt menu mere mesh mild mile milk mind mine mint mist mode mold monk moon more most move much mule muse must nail name navy near neat neck need nest news nice nine node nook noon nose note oath odor omen once open oval oven over pace pack page paid pain pair pale palm park part path peak pear peat peck peek peel peer pest pick pier pile pine pink pipe plan play plot plug plum poem poke pole pond pony pool poor pork port pose post pour prey puff pull pulp pure push quiz race rack raft rain rake rang rank rant rare rash rate read reef reel rely rent rest rice rich ride ring riot ripe rise risk road roam roar robe rock role roof room root rope rose rude ruin rule rung rush safe sail sake salt sand sane sang sank save scan seal seam sear seat seed seek seem self sell send shed ship shop shot show shut sick side silk sink site size slab slam slap slew slim slip slow slug snap snow soak soap sock sofa soft soil sold sole song soon sore sort soul soup sour spam span spar spin spot spur star stay stem step stir stop such suit sure swan sway tail take tale talk tall tame tank tape task taxi teal tear teen tell tend tent than that thaw them then thin this tide tidy tied tile tilt time tint tiny tire toad toil told toll tomb tone took tool torn toss town trap tray tree trek trim trip true tube tuck tuna tune turf turn twig twin unit upon urge used user vary vase vast veil very vibe vice view vine visa void vote wage wake walk wall wand want ward warm warn wash wave weak wear weed week weep well went were west what when whip whom wide wife wild will wind wine wing wink wire wise wish wolf wood wool word wore work worm yard yarn yawn year yoga yoke your zero zest zinc zone`.split(/\s+/);
+
+const RAW_STANDARD_5 = `aback abase abate abbey abbot abhor abide abled abode abort about above abuse abyss acorn acrid actor acute adage adapt adept admin admit adobe adopt adore adorn adult affix afire afoot afoul after again agape agate agent agile aging aglow agony agora agree ahead aider aisle alarm album alert algae alibi alien align alike alive allay alley allot allow alloy aloft alone along aloof aloud alpha altar alter amass amaze amber amble amend amiss amity among ample amply amuse angel anger angle angry angst anime ankle annex annoy annul anode antic anvil aorta apart aphid aping apnea apple apply apron aptly arbor ardor arena argue arise armor aroma arose array arrow arson artsy ascot ashen aside askew assay asset atoll atone attic audio audit augur aunty avail avert avian avoid await awake award aware awash awful awoke axial axiom axion azure bacon badge badly bagel baggy baker baler balmy banal banjo barge baron basal basic basil basin basis baste batch bathe baton batty bawdy bayou beach beady beard beast beech beefy befit began begat beget begin begun being belch belie belle belly below bench beret berry berth beset betel bevel bezel bible bicep biddy bigot bilge billy binge bingo biome birch birth bison bitty black blade blame bland blank blare blast blaze bleak bleat bleed bleep blend bless blimp blind blink bliss blitz bloat block bloke blond blood bloom blown bluer bluff blunt blurb blurt blush board boast bobby boney bongo bonus booby boost booth booty booze boozy borax borne bosom bossy botch bough boule bound bowel boxer brace braid brain brake brand brash brass brave bravo brawl brawn bread break breed briar bribe brick bride brief brine bring brink briny brisk broad broil broke brood brook broom broth brown brunt brush brute buddy budge buggy bugle build built bulge bulky bully bunch bunny burly burnt burst bused bushy butch butte buxom buyer bylaw cabal cabby cabin cable cacao cache cacti caddy cadet cagey cairn camel cameo canal candy canny canoe canon caper caput carat cargo carol carry carve caste catch cater catty caulk cause cavil cease cedar cello chafe chaff chain chair chalk champ chant chaos chard charm chart chase chasm cheap cheat check cheek cheer chess chest chick chide chief child chili chill chime china chirp chock choir choke chord chore chose chuck chump chunk churn chute cider cigar cinch circa civic civil clack claim clamp clang clank clash clasp class clean clear cleat cleft clerk click cliff climb cling clink cloak clock clone close cloth cloud clout clove clown cluck clued clump clung coach coast cobra cocoa colon color comet comfy comic comma conch condo conic copse coral corer corny couch cough could count coupe court coven cover covet covey cower coyly crack craft cramp crane crank crash crass crate crave crawl craze crazy creak cream credo creed creek creep creme crepe crept cress crest crick cried crier crime crimp crisp croak crock crone crony crook cross croup crowd crown crude cruel crumb crump crush crust crypt cubic cumin curio curly curry curse curve curvy cutie cyber cycle cynic daddy daily dairy daisy dally dance dandy datum daunt dealt death debar debit debug debut decal decay decor decoy decry defer deign deity delay delta delve demon demur denim dense depot depth derby deter detox deuce devil diary dicey digit dilly dimly diner dingo dingy diode dirge dirty disco ditch ditto ditty diver dizzy dodge dodgy dogma doing dolly donor donut dopey doubt dough dowdy dowel downy dowry dozen draft drain drake drama drank drape drawl drawn dread dream dress dried drier drift drill drink drive droit droll drone drool droop dross drove drown druid drunk dryer dryly duchy dully dummy dumpy dunce dusky dusty dutch duvet dwarf dwell dwelt dying eager eagle early earth easel eaten eater ebony eclat edict edify eerie egret eight eject eking elate elbow elder elect elegy elfin elide elite elope elude email embed ember emcee empty enact endow enema enemy enjoy ennui ensue enter entry envoy epoch epoxy equal equip erase erect erode error erupt essay ester ether ethic ethos etude evade event every evict evoke exact exalt excel exert exile exist expel extol extra exult eying fable facet faint fairy faith false fancy fanny farce fatal fatty fault fauna favor feast fecal feign fella felon femme femur fence feral ferry fetal fetch fetid fetus fever fewer fiber fibre ficus field fiend fiery fifth fifty fight filer filet filly filmy filth final finch finer first fishy fixer fizzy fjord flack flail flair flake flaky flame flank flare flash flask fleck fleet flesh flick flier fling flint flirt float flock flood floor flora floss flour flout flown fluff fluid fluke flume flung flunk flush flute flyer foamy focal focus foggy foist folio folly foray force forge forgo forte forth forty forum found foyer frail frame frank fraud freak freed freer fresh friar fried frill frisk fritz frock frond front frost froth frown froze fruit fudge fugue fully fungi funky funny furor furry fussy fuzzy gaffe gaily gamer gamma gamut gassy gaudy gauge gaunt gauze gavel gawky gayer gayly gazer gecko geeky geese genie genre ghost ghoul giant giddy gipsy girly girth given giver glade gland glare glass glaze gleam glean glide glint gloat globe gloom glory gloss glove glyph gnash gnome godly going golem golly gonad goner goody gooey goofy goose gorge gouge gourd grace grade graft grail grain grand grant grape graph grasp grass grate grave gravy graze great greed green greet grief grill grime grimy grind gripe groan groin groom grope gross group grout grove growl grown gruel gruff grunt guard guava guess guest guide guild guile guilt guise gulch gully gumbo gummy guppy gusto gusty gypsy habit hairy halve handy happy hardy harem harpy harry harsh haste hasty hatch hater haunt haute haven havoc hazel heady heard heart heath heave heavy hedge hefty heist helix hello hence heron hilly hinge hippo hippy hitch hoard hobby hoist holly homer honey honor horde horny horse hotel hotly hound house hovel hover howdy human humid humor humph humus hunch hunky hurry husky hussy hutch hydro hyena hymen hyper icily icing ideal idiom idiot idler idyll igloo iliac image imbue impel imply inane inbox incur index inept inert infer ingot inlay inlet inner input inter intro ionic irate irony islet issue itchy ivory jaunt jazzy jelly jerky jetty jewel jiffy joint joist joker jolly joust judge juice juicy jumbo jumpy junta junto juror kappa karma kayak kebab khaki kinky kiosk kitty knack knave knead kneed kneel knelt knife knock knoll known koala krill label labor laden ladle lager lance lanky lapel lapse large larva lasso latch later lathe latte laugh layer leach leafy leaky leant leapt learn lease leash least leave ledge leech leery lefty legal leggy lemon lemur leper level lever libel liege light liken lilac limbo limit linen liner lingo lipid lithe liver livid llama loamy loath lobby local locus lodge lofty logic login loopy loose lorry loser louse lousy lover lower lowly loyal lucid lucky lumen lumpy lunar lunch lunge lupus lurch lurid lusty lying lymph lynch lyric macaw macho macro madam madly mafia magic magma maize major maker mambo mamma mammy manga mange mango mangy mania manic manly manor maple march marry marsh mason masse match matey mauve maxim maybe mayor mealy meant meaty mecca medal media medic melee melon mercy merge merit merry metal meter metro micro midge midst might milky mimic mince miner minim minor minty minus mirth miser missy mocha modal model modem mogul moist molar moldy money month moody moose moral moron morph mossy motel motif motor motto moult mound mount mourn mouse mouth mover movie mower mucky mucus muddy mulch mummy munch mural murky mushy music musky musty myrrh nadir naive nanny nasal nasty natal naval navel needy neigh nerdy nerve never newer newly nicer niche niece night ninja ninny ninth noble nobly noise noisy nomad noose north nosey notch novel nudge nurse nutty nylon nymph oaken obese occur ocean octal octet odder oddly offal offer often olden older olive ombre omega onion onset opera opine opium optic orbit order organ other otter ought ounce outdo outer outgo ovary ovate overt ovine ovoid owing owner oxide ozone paddy pagan paint paler palsy panel panic pansy papal paper parer parka parry parse party pasta paste pasty patch patio patsy patty pause payee payer peace peach pearl pecan pedal penal pence penne penny perch peril perky pesky pesto petal petty phase phone phony photo piano picky piece piety piggy pilot pinch piney pinky pinto piper pique pitch pithy pivot pixel pixie pizza place plaid plain plait plane plank plant plate plaza plead pleat plied plier pluck plumb plume plump plunk plush poesy point poise poker polar polka polyp pooch poppy porch poser posit posse pouch pound pouty power prank prawn preen press price prick pride pried prime primo print prior prism privy prize probe prone prong proof prose proud prove prowl proxy prude prune psalm pubic pudgy puffy pulpy pulse punch pupal pupil puppy puree purer purge purse pushy putty pygmy quack quail quake qualm quark quart quash quasi queen queer quell query quest queue quick quiet quill quilt quirk quite quota quote quoth rabbi rabid racer radar radii radio rainy raise rajah rally ralph ramen ranch randy range rapid rarer raspy ratio ratty raven rayon razor reach react ready realm rearm rebar rebel rebus rebut recap recur recut reedy refer refit regal rehab reign relax relay relic remit renal renew repay repel reply rerun reset resin retch retro retry reuse revel revue rhino rhyme rider ridge rifle right rigid rigor rinse ripen riper risen riser risky rival river rivet roach roast robin robot rocky rodeo roger rogue roomy roost rotor rouge rough round rouse route rover rowdy rower royal ruddy ruder rugby ruler rumba rumor rupee rural rusty sadly safer saint salad sally salon salsa salty salve salvo sandy saner sappy sassy satin satyr sauce saucy sauna saute savor savoy savvy scald scale scalp scaly scamp scant scare scarf scary scene scent scion scoff scold scone scoop scope score scorn scour scout scowl scram scrap scree screw scrub scrum scuba sedan seedy segue seize semen sense sepia serif serum serve setup seven sever sewer shack shade shady shaft shake shaky shale shall shalt shame shank shape shard share shark sharp shave shawl shear sheen sheep sheer sheet sheik shelf shell shied shift shine shiny shire shirk shirt shoal shock shone shook shoot shore shorn short shout shove shown showy shrew shrub shrug shuck shunt shush shyly siege sieve sight sigma silky silly since sinew singe siren sissy sixth sixty skate skier skiff skill skimp skirt skulk skull skunk slack slain slang slant slash slate slave sleek sleep sleet slept slice slick slide slime slimy sling slink sloop slope slosh sloth slump slung slunk slurp slush slyly smack small smart smash smear smell smelt smile smirk smite smith smock smoke smoky smote snack snail snake snaky snare snarl sneak sneer snide sniff snipe snoop snore snort snout snowy snuck snuff soapy sober soggy solar solid solve sonar sonic sooth sooty sorry sound south sower space spade spank spare spark spasm spawn speak spear speck speed spell spelt spend spent sperm spice spicy spied spiel spike spiky spill spilt spine spiny spire spite splat split spoil spoke spoof spook spool spoon spore sport spout spray spree sprig spunk spurn spurt squad squat squib stack staff stage staid stain stair stake stale stalk stall stamp stand stank stare stark start stash state stave stead steak steal steam steed steel steep steer stein stern stick stiff still stilt sting stink stint stock stoic stoke stole stomp stone stony stood stool stoop store stork storm story stout stove strap straw stray strip strut stuck study stuff stump stung stunk stunt style suave sugar suing suite sulky sully sumac sunny super surer surge surly sushi swami swamp swarm swash swath swear sweat sweep sweet swell swept swift swill swine swing swirl swish swoon swoop sword swore sworn swung synod syrup tabby table taboo tacit tacky taffy taint taken taker tally talon tamer tango tangy taper tapir tardy tarot taste tasty tatty taunt tawny teach teary tease teddy teeth tempo tenet tenor tense tenth tepee tepid terra terse testy thank theft their theme there these theta thick thief thigh thing think third thong thorn those three threw throb throw thrum thumb thump thyme tiara tibia tidal tiger tight tilde timer timid tipsy titan tithe title toast today toddy token tonal tonga tonic tooth topaz topic torch torso torus total totem touch tough towel tower toxic toxin trace track tract trade trail train trait tramp trash trawl tread treat trend triad trial tribe trice trick tried tripe trite troll troop trope trout trove truce truck truer truly trump trunk truss trust truth tryst tubal tuber tulip tulle tumor tunic turbo tutor twang tweak tweed tweet twice twine twirl twist twixt tying udder ulcer ultra umbra uncle uncut under undid undue unfed unfit unify union unite unity unlit unmet unset untie until unwed unzip upper upset urban urine usage usher using usual usurp utile utter vague valet valid valor value valve vapid vapor vault vaunt vegan venom venue verge verse verso verve vicar video vigil vigor villa vinyl viola viper viral virus visit visor vista vital vivid vixen vocal vodka vogue voice voila vomit voter vouch vowel vying wacky wafer wager wagon waist waive waltz warty waste watch water waver waxen weary weave wedge weedy weigh weird welch welsh wench whack whale wharf wheat wheel whelp where which whiff while whine whiny whirl whisk white whole whoop whose widen wider widow width wield wight willy wimpy wince winch windy wiser wispy witch witty woken woman women woody wooer wooly woozy wordy world worry worse worst worth would wound woven wrack wrath wreak wreck wrest wring wrist write wrong wrote wrung wryly yacht yearn yeast yield young youth zebra zesty zonal`.split(/\s+/);
+
+const RAW_STANDARD_6 = `abroad absorb accuse across admire advice agency agenda almost almond anchor animal annual answer anyone appeal arcade archer arctic armor arrive artist aspect attack attend autumn backup banana banner barely barrel basket battle beacon beauty become before behalf behave belief belong better bitter border bottle bottom bounce branch bridge bright broken bronze bubble bucket burden bureau butter button camera candle cannon canyon carbon career castle casual cavern cellar center chance change charge cheese cherry choice chorus circle circus client coffee column combat coming commit common copper corner cotton county cousin create credit custom damage danger dealer debate decade decide defect degree demand depend design detail detect device dinner divide doctor domain double dragon drawer dreamer driven driver during easier editor effort empire energy engine enough entire escape estate ethnic excess expand expect expert fabric factor fairly family famous farmer father fellow female figure filter finger finish fiscal flavor flower follow forest formal format former fossil foster friend frozen future galaxy garden garlic gather gender genius gentle ginger global golden ground growth guitar handle harbor hardly hazard header health heater height hidden hollow honest honor human hungry hunter ignore impact import income indeed indoor infant inform injury island jacket jungle junior kennel kidney ladder laptop latter launch lawyer leader legacy length lesson letter little lively luxury magnet mainly market master matter medium memory mental mirror mobile modern modest mother motion murder muscle museum native nearby needle normal notice number object obtain office online option orange origin output oxygen packet palace parade parent patent peanut people pepper period person phrase planet pocket police prefer pretty prince public puzzle random rarely rather reader reason record refund refuse region remind remote repair repeat report rescue resort result retail return reveal reward rhythm rocket sailor salary sample school screen script search season secret secure select sensor serial shadow should silver simple sister skill smooth social socket spirit spoken stable status stream street strict strike studio submit summer surely survey switch symbol system talent target tenant ticket timber timely tissue toward travel trendy turtle twelve twenty unique united unlike update useful vacuum valley vendor verbal victim viewer visual volume walnut wander wealth window winner winter within wonder worker yellow`.split(/\s+/);
+
+const RAW_ALLOWED_EXTRA_5 = `aahed aalii aargh aarti abaca abaci abacs abaft abaka abamp aband abash abask abaya abbas abbed abbes abcee abeam abear abele abers abets abies abler ables ablet ablow abmho abohm aboil aboma aboon abord abore abram abray abrim abrin abris absey absit abuna abune abuts abuzz abyes abysm acais acari accas accoy acerb acers aceta achar ached aches achoo acids acidy acing acini ackee acker acmes acmic acned acnes acock acold acred acres acros acted actin acton acyls adaws adays adbot addax added adder addio addle adeem adhan adieu adios adits adman admen admix adobo adown adoze adrad adred adsum aduki adunc adust advew adyta adzed adzes aecia aedes aegis aeons aerie aeros aesir afald afara afars afear aflaj afore afrit afros agama agami agars agast agave agaze agene agers agger aggie aggri aggro aggry aghas agila agios agism agist agita aglee aglet agley agloo aglus agmas agoge agone agons agood agria agrin agros agued agues aguna aguti aheap ahent ahigh ahind ahing ahint ahold ahull ahuru aidas aided aides aidoi aidos aiery aigas aight ailed aimed aimer ainee ainga aioli aired airer airns airth airts aitch aitus aiver aiyee aizle ajies ajiva ajuga ajwan akees akela akene aking akita akkas alaap alack alamo aland alane alang alans alant alapa alaps alary alate alays albas albee alcid alcos aldea alder aldol aleck alecs alefs aleft aleph alews aleye alfas algal algas algid algin algor algum alias alifs aline alist aliya alkie alkos alkyd alkyl allee allel allis allod allyl almah almas almeh almes almud almug alods aloed aloes aloha aloin aloos alowe altho altos alula alums alure alvar alway amahs amain amate amaut amban ambit ambos ambry ameba ameer amene amens ament amias amice amici amide amido amids amies amiga amigo amine amino amins amirs amlas amman ammon ammos amnia amnic amnio amoks amole amort amour amove amowt amped ampul amrit amuck amyls anana anata ancho ancle ancon andro anear anele anent angas anglo anigh anile anils anima animi anion anise anker ankhs ankus anlas annal annas annat anoas anole anomy ansae antae antar antas anted antes antis antra antre antsy anura anyon apace apage apaid apayd apays apeak apeek apers apert apery apgar aphis apian apiol apish apism apode apods apoop aport appal appay appel appro appui appuy apres apses apsis apsos apted apter aquae aquas araba araks arame arars arbas arced archi arcos arcus ardeb ardri aread areae areal arear areas areca aredd arede arefy areic arene arepa arere arete arets arett argal argan argil argle argol argon argot argus arhat arias ariel ariki arils ariot arish arked arled arles armed armer armet armil arnas arnut aroba aroha aroid arpas arpen arrah arras arret arris arroz arsed arses arsey arsis artal artel artic artis aruhe arums arval arvee arvos aryls asana ascon ascus asdic ashed ashes ashet asked asker askoi askos aspen asper aspic aspie aspis aspro assai assam asses assez assot aster astir astun asura asway aswim asyla ataps ataxy atigi atilt atimy atlas atman atmas atmos atocs atoke atoks atoms atomy atony atopy atria atrip attap attar atuas audad auger aught aulas aulic auloi aulos aumil aunes aunts aurae aural aurar auras aurei aures auric auris aurum autos auxin avale avant avast avels avens avers avgas avine avion avise aviso avize avows avyze awarn awato awave aways awdls aweel aweto awing awmry awned awner awols awork axels axile axils axing axite axled axles axman axmen axoid axone axons ayahs ayaya ayelp aygre ayins ayont ayres ayrie azans azide azido azine azlon azoic azole azons azote azoth azuki azurn azury azygy azyme azyms baaed baals babas babel babes babka baboo babul babus bacca bacco baccy bacha bachs backs baddy baels baffs baffy bafts baghs bagie bahts bahus bahut bails bairn baisa baith baits baiza baize bajan bajra bajri bajus baked baken bakes bakra balas balds baldy baled bales balks balky balls bally balms baloo balsa balti balun balus bambi banak banco bancs banda bandh bands bandy baned banes bangs bania banks banns bants bantu banty banya bapus barbe barbs barby barca barde bardo bards bardy bared barer bares barfi barfs baric barks barky barms barmy barns barny barps barra barre barro barry barye basan based basen baser bases basho basij basks bason basse bassi basso bassy basta basti basto basts bated bates baths batik batta batts battu bauds bauks baulk baurs bavin bawds bawks bawls bawns bawrs bawty bayed bayer bayes bayle bayts bazar bazoo beads beaks beaky beals beams beamy beano beans beany beare bears beath beats beaty beaus beaut beaux bebop becap becke becks bedad bedel bedes bedew bedim bedye beedi beefs beeps beers beery beets befog begad begar begem begot begum beige beigy beins bekah belah belar belay belee belga bells belon belts bemad bemas bemix bemud bends bendy benes benet benga benis benne benni benny bento bents benty bepat beray beres bergs berko berks berme berms berob beryl besat besaw besee beses besit besom besot besti bests betas beted betes beths betid beton betta betty bever bevor bevue bevvy bewet bewig bezes bezil bezzy bhais bhaji bhang bhats bhels bhoot bhuna bhuts biach biali bialy bibbs bibes biccy bices bided bider bides bidet bidis bidon bield biers biffo biffs biffy bifid bigae biggs biggy bigha bight bigly bigos bijou biked biker bikes bikie bilbo bilby biled biles bilgy bilks bills bimah bimas bimbo binal bindi binds biner bines bings bingy binit binks bints biogs biont biota biped bipod birds birks birle birls biros birrs birse birsy bises bisks bisom bitch biter bites bitos bitou bitsy bitte bitts bivia bivvy bizes bizzo bizzy blabs blads blady blaer blaes blaff blags blahs blain blams blart blase blash blate blats blatt blaud blawn blaws blays blear blebs blech blees blent blert blest blets bleys blimy bling blini blins bliny blips blist blite blits blive blobs blocs blogs blook bloop blore blots blows blowy blubs blude bluds bludy blued blues bluet bluey bluid blume blunk blurs blype boabs boaks boars boart boats bobac bobak bobas bobol bobos bocca bocce bocci boche bocks boded bodes bodge bodhi bodle boeps boets boeuf boffo boffs bogan bogey boggy bogie bogle bogue bogus bohea bohos boils boing boink boite boked bokeh bokes bokos bolar bolas bolds boles bolix bolls bolos bolts bolus bomas bombe bombo bombs bonce bonds boned boner bones bongs bonie bonks bonne bonny bonza bonze booai booay boobs boody booed boofy boogy boohs books booky bools booms boomy boong boons boord boors boose boots boppy borak boral boras borde bords bored boree borel borer bores borgo boric borks borms borna boron borts borty bortz bosie bosks bosky boson bosun botas botel botes bothy botte botts botty bouge bouks boult bouns bourd bourg bourn bouse bousy bouts bovid bowat bowed bower bowes bowet bowie bowls bowne bowrs bowse boxed boxen boxes boxla boxty boyar boyau boyed boyfs boygs boyla boyos boysy bozos braai brach brack bract brads braes brags brail braks braky brame brane brank brans brant brast brats brava bravi braws braxy brays braza braze bream brede breds breem breer brees breid breis breme brens brent brere brers breve brews breys brier bries brigs briki briks brill brims brins brios brise briss brith brits britt brize broch brock brods brogh brogs brome bromo bronc brond brool broos brose brosy brows brugh bruin bruit brule brume brung brusk brust bruts buats buaze bubal bubas bubba bubbe bubby bubus buchu bucko bucks bucku budas budis budos buffa buffe buffi buffo buffs buffy bufos bufty buhls buhrs buiks buist bukes bulbs bulgy bulks bulla bulls bulse bumbo bumfs bumph bumps bumpy bunas bunce bunco bunde bundh bunds bundt bundu bundy bungs bungy bunia bunje bunjy bunko bunks bunns bunts bunty bunya buoys buppy buran buras burbs burds buret burfi burgh burgs burin burka burke burks burls burns buroo burps burqa burro burrs burry bursa burse busby buses busks busky bussu busti busts busty buteo butes butle butoh butts butty butut butyl buzzy bwana bwazi byded bydes byked bykes byres byrls byssi bytes byway caaed cabas caber cabob caboc cabre cacas cacks cacky cadee cades cadge cadgy cadie cadis cadre caeca caese cafes caffs caged cager cages cagot cahow caids cains caird cajon cajun caked cakes cakey calfs calid calif calix calks calla calls calms calmy calos calpa calps calve calyx caman camas cames camis camos campi campo camps campy camus caned caneh caner canes cangs canid canna canns canso canst canto cants canty capas caped capes capex caphs capiz caple capon capos capot capri capul carap carbo carbs carby cardi cards cardy cared carer cares caret carex carks carle carls carns carny carob carom caron carpi carps carrs carse carta carte carts carvy casas casco cased cases casks casky casts casus cates cauda cauks cauld cauls caums caups cauri causa cavas caved cavel caver caves cavie cawed cawks caxon ceaze cebid cecal cecum ceded ceder cedes cedis ceiba ceili ceils celeb cella celli cells celom celts cense cento cents centu ceorl cepes cerci cered ceres cerge ceria ceric cerne ceroc ceros certs certy cesse cesta cesti cetes cetyl cezve chace chack chaco chado chads chaft chais chals chams chana chang chank chape chaps chapt chara chare chark charr chars chary chats chave chavs chawk chaws chaya chays cheep chefs cheka chela chelp chemo chems chere chert cheth chevy chews chewy chiao chias chibs chica chich chico chics chiel chiks chile chimb chimo chimp chine ching chink chino chins chips chirk chirl chirm chiro chirr chirt chiru chits chive chivs chivy chizz choco chocs chode chogs choil choko choky chola choli cholo chomp chons choof chook choom choon chops chota chott chout choux chowk chows chubs chufa chuff chugs chums churl churr chuse chuts chyle chyme chynd cibol cided cides ciels ciggy cilia cills cimar cimex cinct cines cinqs cions cippi circs cires cirls cirri cisco cissy cists cital cited citer cites cives civet civie civvy clach clade clads claes clags clame clams clans claps clapt claro clart clary clast clats claut clave clavi claws clays cleck cleek cleep clefs clegs cleik clems clepe clept cleve clews clied clies clift clime cline clint clipe clips clipt clits cloam clods cloff clogs cloke clomb clomp clonk clons cloop cloot clops clote clots clour clous clows cloye cloys cloze clubs clues cluey clunk clype cnida coact coady coala coals coaly coapt coarb coate coati coats cobbs cobby cobia coble cobza cocas cocci cocco cocks cocky cocos codas codec coded coden coder codes codex codon coeds coffs cogie cogon cogue cohab cohen cohoe cohog cohos coifs coign coils coins coirs coits coked cokes colas colby colds coled coles coley colic colin colls colly colog colts colza comae comal comas combe combi combo combs comby comer comes comix commo comms commy compo comps compt comte comus coned cones coney confs conga conge congo conia conin conks conky conne conns conte conto conus convo cooch cooed cooee cooer cooey coofs cooks cooky cools cooly coomb cooms coomy coons coops coopt coost coots cooze copal copay coped copen coper copes coppy copra copsy coqui coram corbe corby cords cored cores corey corgi coria corks corky corms corni corno corns cornu corps corse corso cosec cosed coses coset cosey cosie costa coste costs cotan coted cotes coths cotta cotts coude coups courb courd coure cours couta couth coved coves covin cowal cowan cowed cowks cowls cowps cowry coxae coxal coxed coxes coxib coyau coyed coyer coypu cozed cozen cozes cozey cozie craal crabs crags craic craig crake crame crams crans crape craps crapy crare craws crays creds creel crees crems crena creps crepy crewe crews crias cribs cries crims crine crios cripe crips crise crith crits croci crocs croft crogs cromb crome cronk crons crool croon crops crore crost crout crows croze cruck crudo cruds crudy crues cruet cruft crunk cruor crura cruse crusy cruve crwth cryer ctene cubby cubeb cubed cuber cubes cubit cuddy cuffo cuffs cuifs cuing cuish cuits cukes culch culet culex culls cully culms culpa culti cults culty cumec cundy cunei cunit cunts cupel cupid cuppa cuppy curat curbs curch curds curdy cured curer cures curet curfs curia curie curli curls curns curny currs cursi curst cusec cushy cusks cusps cuspy cusso cusum cutch cuter cutes cutey cutin cutis cutto cutty cutup cuvee cuzes cwtch cyano cyans cycad cycas cyclo cyder cylix cymae cymar cymas cymes cymol cysts cytes cyton czars daals dabba daces dacha dacks dadah dadas dados daffs daffy dagga daggy dagos dahls daiko daine daint daker daled dales dalis dalle dalts daman damar dames damme damns damps dampy dancy dangs danio danks danny dants daraf darbs darcy dared darer dares darga dargs daric daris darks darky darns darre darts darzi dashi dashy datal dated dater dates datos datto daube daubs dauby dauds dault daurs dauts daven davit dawah dawds dawed dawen dawks dawns dawts dayan daych daynt dazed dazer dazes deads deair deals deans deare dearn dears deary deash deave deaws deawy debag debby debel debes debts debud debur debus debye decad decaf decan decko decks decos dedal deeds deedy deely deems deens deeps deere deers deets deeve deevs defat deffo defis defog degas degum degus deice deids deify deils deism deist deked dekes dekko deled deles delfs delft delis dells delly delos delph delts deman demes demic demit demob demoi demos dempt denar denay dench denes denet denis dents deoxy derat deray dered deres derig derma derms derns derny deros derro derry derth dervs desex deshi desis desks desse devas devel devis devon devos devot dewan dewar dewax dewed dexes dexie dhaba dhaks dhals dhikr dhobi dhole dholl dhols dhoti dhows dhuti diact dials diane diazo dibbs diced dicer dices dicht dicks dicky dicot dicta dicts dicty diddy didie didos didst diebs diels diene diets diffs dight dikas diked diker dikes dikey dildo dilli dills dimbo dimer dimes dimps dinar dined dines dinge dings dinic dinks dinky dinna dinos dints diols diota dippy dipso diram direr dirke dirks dirls dirts disas disci discs dishy disks disme dital ditas dited dites ditsy ditts ditzy divan divas dived dives divis divna divos divot divvy diwan dixie dixit diyas dizen djinn djins doabs doats dobby dobes dobie dobla dobra dobro docht docks docos docus doddy dodos doeks doers doest doeth doffs dogan doges dogey doggo doggy dogie dohyo doilt doily doits dojos dolce dolci doled doles dolia dolls dolma dolor dolos dolts domal domed domes domic donah donas donee doner donga dongs donko donna donne donny donsy doobs dooce doody dooks doole dools dooly dooms doomy doona doorn doors doozy dopas doped doper dopes dorad dorba dorbs doree dores doric doris dorks dorky dorms dormy dorps dorrs dorsa dorse dorts dorty dosai dosas dosed doseh doser doses dosha dotal doted doter dotes dotty douar douce doucs douks doula douma doums doups doura douse douts doved doven dover doves dovie dowar dowds dowed dower dowie dowle dowls dowly downa downs dowps dowse dowts doxed doxes doxie doyen doyly dozed dozer dozes drabs drack draco draff drags drail drams drant draps drats drave draws drays drear dreck dreed dreer drees dregs dreks drent drere drest dreys dribs drice dries drily drips dript droid droil droke drole drome drony droob droog drook drops dropt drouk drows drubs drugs drums drupe druse drusy druxy dryad dryas dsobo dsomo duads duals duans duars dubbo ducal ducat duces ducks ducky ducts duddy duded dudes duels duets duett duffs dufus duing duits dukas duked dukes dukka dulce dules dulia dulls dulse dumas dumbo dumbs dumka dumky dumps dunam dunch dunes dungs dungy dunks dunno dunny dunsh dunts duomi duomo duped duper dupes duple duply duppy dural duras dured dures durgy durns duroc duros duroy durra durrs durry durst durum durzi dusks dusts duxes dwaal dwale dwalm dwams dwang dwaum dweeb dwile dwine dyads dyers dyked dykes dykey dykon dynel dynes dzhos eagre ealed eales eaned eards eared earls earns earnt earst eased easer eases easle easts eathe eaved eaves ebbed ebbet ebons ebook ecads eched eches echos ecrus edema edged edger edges edile edits educe educt eejit eensy eeven eevns effed egads egers egest eggar egged egger egmas ehing eider eidos eigne eiked eikon eilds eisel ejido ekkas elain eland elans elchi eldin elemi elfed eliad elint elmen eloge elogy eloin elops elpee elsin elute elvan elven elver elves emacs embar embay embog embow embox embus emeer emend emerg emery emeus emics emirs emits emmas emmer emmet emmew emmys emoji emong emote emove empts emule emure emyde emyds enarm enate ended ender endew endue enews enfix eniac enlit enmew ennog enoki enols enorm enows enrol ensew ensky entia enure enurn envoi enzym eorls eosin epact epees ephah ephas ephod ephor epics epode epopt epris eques equid erbia erevs ergon ergos ergot erhus erica erick erics ering erned ernes erose erred erses eruct erugo eruvs erven ervil escar escot esile eskar esker esnes esses estoc estop estro etage etape etats etens ethal ethne ethyl etics etnas ettin ettle etuis etwee etyma eughs euked eupad euros eusol evens evert evets evhoe evils evite evohe ewers ewest ewhow ewked exams exeat execs exeem exeme exfil exies exine exing exits exode exome exons expat expos exude exuls exurb eyass eyers eyots eyras eyres eyrie eyrir ezine fabby faced facer faces facia facta facts faddy faded fader fades fadge fados faena faery faffs faffy faggy fagin fagot faiks fails faine fains fairs faked faker fakes fakey fakie fakir falaj falls famed fames fanal fands fanes fanga fango fangs fanks fanon fanos fanum faqir farad farci farcy fards fared farer fares farle farls farms faros farro farse farts fasci fasti fasts fated fates fatly fatso fatwa faugh fauld fauns faurd fauts fauve favas favel faver faves favus fawns fawny faxed faxes fayed fayer fayne fayre fazed fazes feals feare fears feart fease feats feaze feces fecht fecit fecks fedex feebs feeds feels feens feers feese feeze fehme feint feist felch felid fells felly felts felty femal femes femmy fends fendy fenis fenks fenny fents feods feoff ferer feres feria ferly fermi ferms ferns ferny fesse festa fests festy fetas feted fetes fetor fetta fetts fetwa feuar feuds feued feyed feyer feyly fezes fezzy fiars fiats fibro fices fiche fichu ficin ficos fides fidge fidos fiefs fient fiere fiers fiest fifed fifer fifes fifis figgy figos fiked fikes filar filch filed files filii filks fille fillo fills filmi films filos filum finca finds fined fines finis finks finny finos fiord fiqhs fique fired firer fires firie firks firms firns firry firth fiscs fisks fists fisty fitch fitly fitna fitte fitts fiver fives fixed fixes fixit fjeld flabs flaff flags flaks flamm flams flamy flane flans flaps flary flats flava flawn flaws flawy flaxy flays fleam fleas fleek fleer flees flegs fleme fleur flews flexi flexo fleys flics flied flies flimp flims flips flirs flisk flite flits flitt flobs flocs floes flogs flong flops flors flory flosh flota flote flows flubs flued flues fluey fluky flump fluor flurr fluty fluyt flyby flype flyte foals foams foehn fogey fogie fogle fogou fohns foids foils foins folds foley folia folic folie folks folky fomes fonda fonds fondu fones fonly fonts foods foody fools foots footy foram forbs forby fordo fords forel fores forex forks forky forme forms forts forza forze fossa fosse fouat fouds fouer fouet foule fouls fount fours fouth fovea fowls fowth foxed foxes foxie foyle foyne frabs frack fract frags fraim franc frape fraps frass frate frati frats fraus frays frees freet freit fremd frena freon frere frets fribs frier fries frigs frise frist frith frits fritt frize frizz froes frogs frons frore frorn frory frosh frows frowy frugs frump frush frust fryer fubar fubby fubsy fucks fucus fuddy fudgy fuels fuero fuffs fuffy fugal fuggy fugie fugio fugle fugly fugus fujis fulls fumed fumer fumes fumet fundi funds fundy fungo fungs funks fural furan furca furls furol furrs furth furze furzy fused fusee fusel fuses fusil fusks fusts fusty futon fuzed fuzee fuzes fuzil fyces fyked fykes fyles fyrds fytte gabba gabby gable gaddi gades gadge gadid gadis gadje gadjo gadso gaffs gaged gager gages gaids gains gairs gaita gaits gaitt gajos galah galas galax galea galed gales galls gally galop galut galvo gamas gamay gamba gambe gambo gambs gamed games gamey gamic gamin gamme gammy gamps ganch gandy ganef ganev gangs ganja ganof gants gaols gaped gaper gapes gapos gappy garbe garbo garbs garda gares garis garms garni garre garth garum gases gasps gaspy gasts gatch gated gater gates gaths gator gauch gaucy gauds gauje gault gaums gaumy gaups gaurs gauss gauzy gavot gawcy gawds gawks gawps gawsy gayal gazal gazar gazed gazes gazon gazoo geals geans geare gears geats gebur gecks geeks geeps geest geist geits gelds gelee gelid gelly gelts gemel gemma gemmy gemot genal genas genes genet genic genii genip genny genoa genom genro gents genty genua genus geode geoid gerah gerbe geres gerle germs germy gerne gesse gesso geste gests getas getup geums geyan geyer ghast ghats ghaut ghazi ghees ghest ghyll gibed gibel giber gibes gibli gibus gifts gigas gighe gigot gigue gilas gilds gilet gills gilly gilpy gilts gimel gimme gimps gimpy ginch ginge gings ginks ginny ginzo gipon gippo gippy girds girls girns giron giros girrs girsh girts gismo gisms gists gitch gites giust gived gives gizmo glace glads glady glaik glair glams glans glary glaum glaur glazy gleba glebe gleby glede gleds gleed gleek glees gleet gleis glens glent gleys glial glias glibs gliff glift glike glime glims glisk glits glitz gloam globi globs globy glode glogg gloms gloop glops glost glout glows gloze glued gluer glues gluey glugs glume glums gluon glute gluts gnarl gnarr gnars gnats gnawn gnaws gnows goads goafs goals goary goats goaty goban gobar gobbi gobbo gobby gobis gobos godet godso goels goers goest goeth goety gofer goffs gogga gogos goier gojis golds goldy goles golfs golpe golps gombo gomer gompa gonch gonef gongs gonia gonif gonks gonna gonof gonys gonzo gooby goods goofs googs gooks gooky goold gools gooly goons goony goops goopy goors goory goosy gopak gopik goral goras gored gores goris gorms gormy gorps gorse gorsy gosht gosse gotch goths gothy gotta gouch gouks goura gouts gouty gowan gowds gowfs gowks gowls gowns goxes goyim goyle graal grabs grads graff graip grama grame gramp grams grana grans grapy gravs grays grebe grebo grece greek grees grege grego grein grens grese greve grews greys grice gride grids griff grift grigs grike grins griot grips gript gripy grise grist grisy grith grits grize groat grody grogs groks groma grone groof grosz grots grouf grovy grows grrls grrrl grubs grued grues grufe grume grump grund gryce gryde gryke grype grypt guaco guana guano guans guars gucks gucky gudes guffs gugas guids guimp guiro gulag gular gulas gules gulet gulfs gulfy gulls gulph gulps gulpy gumma gummi gumps gundy gunge gungy gunks gunky gunny guqin gurdy gurge gurls gurly gurns gurry gursh gurus gushy gusla gusle gusli gussy gusts gutsy gutta gutty guyed guyle guyot guyse gwine gyals gyans gybed gybes gyeld gymps gynae gynie gynny gynos gyoza gypos gyppo gyppy gyral gyred gyres gyron gyros gyrus gytes gyved gyves haafs haars hable habus hacek hacks hadal haded hades hadji hadst haems haets haffs hafiz hafts haggs hahas haick haika haiks haiku hails haily hains haint hairs haith hajes hajis hajji hakam hakas hakea hakes hakim hakus halal haled haler hales halfa halfs halid hallo halls halma halms halon halos halse halts halva halwa hamal hamba hamed hames hammy hamza hanap hance hanch hands hangi hangs hanks hanky hansa hanse hants haole haoma hapax haply happi hapus haram hards hared hares harim harks harls harms harns haros harps harts hashy hasks hasps hasta hated hates hatha hauds haufs haugh hauld haulm hauls hault hauns hause haver haves hawed hawks hawms hawse hayed hayer hayey hayle hazan hazed hazer hazes heads heald heals heame heaps heapy heare hears heast heats heben hebes hecht hecks heder hedgy heeds heedy heels heeze hefte hefts heids heigh heils heirs hejab hejra heled heles helio hells helms helos helot helps helve hemal hemes hemic hemin hemps hempy hench hends henge henna henny henry hents hepar herbs herby herds heres herls herma herms herns heros herry herse hertz herye hesps hests hetes heths heuch heugh hevea hewed hewer hewgh hexad hexed hexer hexes hexyl heyed hiant hicks hided hider hides hiems highs hight hijab hijra hiked hiker hikes hikoi hilar hilch hillo hills hilts hilum hilus himbo hinau hinds hings hinky hinny hints hiois hiply hired hiree hirer hires hissy hists hithe hived hiver hives hizen hoaed hoagy hoars hoary hoast hobos hocks hocus hodad hodja hoers hogan hogen hoggs hoghs hohed hoick hoied hoiks hoing hoise hokas hoked hokes hokey hokis hokku hokum holds holed holes holey holks holla hollo holme holms holon holos holts homas homed homes homey homie homme homos honan honda honds honed honer hones hongi hongs honks honky hooch hoods hoody hooey hoofs hooka hooks hooky hooly hoons hoops hoord hoors hoosh hoots hooty hoove hopak hoped hoper hopes hoppy horah horal horas horis horks horme horns horst horsy hosed hosel hosen hoser hoses hosey hosta hosts hotch hoten hotty houff houfs hough houri hours houts hovea hoved hoven hoves howbe howes howff howfs howks howls howre howso hoxed hoxes hoyas hoyed hoyle hubby hucks hudna hudud huers huffs huffy huger huggy huhus huias hulas hules hulks hulky hullo hulls hully humas humfs humic humps humpy hunks hunts hurds hurls hurly hurra hurst hurts hushy husks husos hutia huzza huzzy hwyls hydra hyens hygge hying hykes hylas hyleg hyles hylic hymns hynde hyoid hyped hypes hypha hyphy hypos hyrax hyson hythe iambi iambs ibrik icers iched iches ichor icier icker ickle icons ictal ictic ictus idant ideas idees ident idled idles idola idols idyls iftar igapo igged iglus ihram ikans ikats ikons ileac ileal ileum ileus iliad ilial ilium iller illth imago imams imari imaum imbar imbed imide imido imids imine imino immew immit immix imped impis impot impro imshi imshy inapt inarm inbye incel incle incog incus incut indew india indie indol indow indri indue inerm infix infos infra ingan ingle inion inked inker inkle inned innit inorb inrun inset inspo intel intil intis intra inula inure inurn inust invar inwit iodic iodid iodin iotas ippon irade irids iring irked iroko irone irons isbas ishes isled isles isnae issei istle items ither ivied ivies ixias ixnay ixora ixtle izard izars izzat jaaps jabot jacal jacks jacky jaded jades jafas jaffa jagas jager jaggs jaggy jagir jagra jails jaker jakes jakey jalap jalop jambe jambo jambs jambu james jammy jamon janes janns janny janty japan japed japer japes jarks jarls jarps jarta jarul jasey jaspe jasps jatos jauks jaups javas javel jawan jawed jaxie jeans jeats jebel jedis jeels jeely jeeps jeers jeeze jefes jeffs jehad jehus jelab jello jells jembe jemmy jenny jeons jerid jerks jerry jesse jests jesus jetes jeton jeune jewed jewie jhala jiaos jibba jibbs jibed jiber jibes jiffs jiggy jigot jihad jills jilts jimmy jimpy jingo jinks jinne jinni jinns jirds jirga jirre jisms jived jiver jives jivey jnana jobed jobes jocko jocks jocky jocos jodel joeys johns joins joked jokes jokey jokol joled joles jolls jolts jolty jomon jomos jones jongs jonty jooks joram jorum jotas jotty jotun joual jougs jouks joule jours jowar jowed jowls jowly joyed jubas jubes jucos judas judgy judos jugal jugum jujus juked jukes jukus julep jumar jumby jumps junco junks junky jupes jupon jural jurat jurel jures justs jutes jutty juves juvie kaama kabab kabar kabob kacha kacks kadai kades kadis kafir kagos kagus kahal kaiak kaids kaies kaifs kaika kaiks kails kaims kaing kains kakas kakis kalam kales kalif kalis kalpa kamas kames kamik kamis kamme kanae kanas kandy kaneh kanes kanga kangs kanji kants kanzu kaons kapas kaphs kapok kapow kapus kaput karas karat karks karns karoo karos karri karst karsy karts karzy kasha kasme katal katas katis katti kaugh kauri kauru kaury kaval kavas kawas kawau kawed kayle kayos kazis kazoo kbars kebar kebob kecks kedge kedgy keech keefs keeks keels keema keeno keens keeps keets keeve kefir kehua keirs kelep kelim kells kelly kelps kelpy kelts kelty kembo kembs kemps kempt kempy kenaf kench kendo kenos kente kents kepis kerbs kerel kerfs kerky kerma kerne kerns keros kerry kerve kesar kests ketas ketch ketes ketol kevel kevil kexes keyed keyer khadi khafs khans khaph khats khaya khazi kheda kheth khets khoja khors khoum khuds kiaat kiack kiang kibbe kibbi kibei kibes kibla kicks kicky kiddo kiddy kidel kidge kiefs kiers kieve kievs kight kikes kikoi kiley kilim kills kilns kilos kilps kilts kilty kimbo kinas kinda kinds kindy kines kings kinin kinks kinos kiore kipes kippa kipps kirby kirks kirns kirri kisan kissy kists kited kiter kites kithe kiths kitul kivas kiwis klang klaps klett klick klieg kliks klong kloof kluge klutz knags knaps knarl knars knaur knawe knees knell knish knits knive knobs knops knosp knots knout knowe knows knubs knurl knurr knurs knuts koans koaps koban kobos koels koffs kofta kogal kohas kohen kohls koine kojis kokam kokas koker kokra kokum kolas kolos kombu konbu kondo konks kooks kooky koori kopek kophs kopje koppa korai koras korat kores korma koros korun korus koses kotch kotos kotow koura kraal krabs kraft krais krait krang krans kranz kraut krays kreep kreng krewe krona krone kroon krubi krunk ksars kubie kudos kudus kudzu kufis kugel kuias kukri kukus kulak kulan kulas kulfi kumis kumys kuris kurre kurta kurus kusso kutas kutch kutis kutus kuzus kvass kvell kwela kyack kyaks kyang kyars kyats kybos kydst kyles kylie kylin kylix kyloe kynde kynds kypes kyrie kytes kythe laari labda labia labis labra laced lacer laces lacet lacey lacks laddy laded lader lades laers laevo lagan lahal lahar laich laics laids laigh laika laiks laird lairs lairy laith laity laked laker lakes lakhs lakin laksa laldy lalls lamas lambs lamby lamed lamer lames lamia lammy lamps lanai lanas lanch lande lands lanes lanks lants lapin lapis lapje larch lards lardy laree lares largo laris larks larky larns larnt larum lased laser lases lassi lassu lassy lasts latah lated laten latex lathi laths lathy latke latus lauan lauch lauds laufs laund laura laval lavas laved laver laves lavra lavvy lawed lawer lawin lawks lawns lawny laxed laxer laxes laxly layed layin layup lazar lazed lazes lazos lazzi lazzo leads leady leafs leaks leams leans leany leaps leare lears leary leats leavy leaze leben leccy ledes ledgy ledum leear leeks leeps leers leese leets leeze lefte lefts leger leges legge leggo legit lehrs lehua leirs leish leman lemed lemel lemes lemma lemme lends lenes lengs lenis lenos lense lenti lento leone lepid lepra lepta lered leres lerps lesbo leses lests letch lethe letup leuch leuco leuds leugh levas levee leves levin levis lewis lexes lexis lezes lezza lezzy liana liane liang liard liars liart liber libra libri lichi licht licit licks lidar lidos liefs liens liers lieus lieve lifer lifes lifts ligan liger ligge ligne liked liker likes likin lills lilos lilts liman limas limax limba limbi limbs limby limed limen limes limey limma limns limos limpa limps linac linch linds lindy lined lines liney linga lings lingy linin links linky linns linny linos lints linty linum linux lions lipas lipes lipin lipos lippy liras lirks lirot lisks lisle lisps lists litai litas lited liter lites litho liths litre lived liven lives livor livre llano loach loads loafs loams loans loast loave lobar lobed lobes lobos lobus loche lochs locie locis locks locos locum loden lodes loess lofts logan loges loggy logia logie logoi logon logos lohan loids loins loipe loirs lokes lolls lolly lolog lomas lomed lomes loner longa longe longs looby looed looey loofa loofs looie looks looky looms loons loony loops loord loots loped loper lopes loppy loral loran lords lordy lorel lores loric loris losed losel losen loses lossy lotah lotas lotes lotic lotos lotsa lotta lotte lotto lotus loued lough louie louis louma lound louns loupe loups loure lours loury louts lovat loved loves lovey lovie lowan lowed lowes lownd lowne lowns lowps lowry lowse lowts loxed loxes lozen luach luaus lubed lubes lubra luces lucks lucre ludes ludic ludos luffa luffs luged luger luges lulls lulus lumas lumbi lumme lummy lumps lunas lunes lunet lungi lungs lunks lunts lupin lured lurer lures lurex lurgi lurgy lurks lurry lurve luser lushy lusks lusts lusus lutea luted luter lutes luvvy luxed luxer luxes lweis lyams lyard lyart lyase lycea lycee lycra lymes lynes lyres lysed lyses lysin lysis lysol lyssa lyted lytes lythe lytic lytta maaed maare maars mabes macas maced macer maces mache machi machs macks macle macon madge madid madre maerl mafic mages maggs magot magus mahoe mahua mahwa maids maiko maiks maile maill mails maims mains maire mairs maise maist makar makes makis makos malam malar malas malax males malic malik malis malls malms malmy malts malty malus malva malwa mamas mamba mamee mamey mamie manas manat mandi maneb maned maneh manes manet mangs manis manky manna manos manse manta manto manty manul manus mapau maqui marae marah maras marcs mardy mares marge margs maria marid marka marks marle marls marly marms maron maror marra marri marse marts marvy masas mased maser mases mashy masks massa massy masts masty masus matai mated mater mates maths matin matlo matte matts matza matzo mauby mauds mauls maund mauri mausy mauts mauzy maven mavie mavin mavis mawed mawks mawky mawns mawrs maxed maxes maxis mayan mayas mayed mayos mayst mazed mazer mazes mazey mazut mbira meads meals meane means meany meare mease meath meats mebos mechs mecks medii medle meeds meers meets meffs meins meint meiny meith mekka melas melba melds melic melik mells melts melty memes memos menad mends mened menes menge mengs mensa mense mensh menta mento menus meous meows merch mercs merde mered merel merer meres meril meris merks merle merls merse mesal mesas mesel meses meshy mesic mesne meson messy mesto meted metes metho meths metic metif metis metol metre meuse meved meves mewed mewls meynt mezes mezze mezzo mhorr miaou miaow miasm miaul micas miche micht micks micky micos micra middy midgy midis miens mieve miffs miffy mifty miggs mihas mihis miked mikes mikra mikva milch milds miler miles milfs milia milko milks mille mills milor milos milpa milts milty miltz mimed mimeo mimer mimes mimsy minae minar minas mincy minds mined mines minge mings mingy minis minke minks minny minos mints mired mires mirex mirid mirin mirks mirky mirly miros mirvs mirza misch misdo mises misgo misos missa mists misty mitch miter mites mitis mitre mitts mixed mixen mixer mixes mixte mixup mizen mizzy mneme moans moats mobby mobes mobey mobie moble mochi mochs mochy mocks moder modes modge modii modus moers mofos moggy mohel mohos mohrs mohua mohur moile moils moira moire moits mojos mokes mokis mokos molal molas molds moled moles molla molls molly molto molts molys momes momma mommy momus monad monal monas monde mondo moner mongo mongs monic monie monks monos monte monty moobs mooch moods mooed mooks moola mooli mools mooly moong moons moony moops moors moory moots moove moped moper mopes mopey moppy mopsy mopus morae moras morat moray morel mores moria morne morns morra morro morse morts mosed moses mosey mosks mosso moste mosts moted moten motes motet motey moths mothy motis motte motts motty motus motza mouch moues mould mouls moups moust mousy moved moves mowas mowed mowra moxas moxie moyas moyle moyls mozed mozes mozos mpret mucho mucic mucid mucin mucks mucor mucro mudge mudir mudra muffs mufti mugga muggs muggy muhly muids muils muirs muist mujik mulct muled mules muley mulga mulie mulla mulls mulse mulsh mumms mumps mumsy mumus munga munge mungo mungs munis munts muntu muons muras mured mures murex murid murks murls murly murra murre murri murrs murry murti murva musar musca mused muser muses muset musha musit musks musos musse mussy musth musts mutch muted muter mutes mutha mutis muton mutts muxed muxes muzak muzzy mvule myall mylar mynah mynas myoid myoma myope myops myopy mysid mythi myths mythy myxos mzees naams naans nabes nabis nabks nabla nabob nache nacho nacre nadas naeve naevi naffs nagas naggy nagor nahal naiad naifs naiks nails naira nairu naked naker nakfa nalas naled nalla named namer names namma namus nanas nance nancy nandu nanna nanos nanua napas naped napes napoo nappa nappe nappy naras narco narcs nards nares naric naris narks narky narre nashi natch nates natis natty nauch naunt navar naves navew navvy nawab nazes nazir nazis nduja neafe neals neaps nears neath neats nebek nebel necks neddy needs neeld neele neemb neems neeps neese neeze negro negus neifs neist neive nelis nelly nemas nemns nempt nenes neons neper nepit neral nerds nerka nerks nerol nerts nertz nervy nests netes netop netts netty neuks neume neums nevel neves nevus newbs newed newel newie newsy newts nexts nexus ngaio ngana ngati ngoma ngwee nicad nicht nicks nicol nidal nided nides nidor nidus niefs nieve nifes niffs niffy nifty niger nighs nihil nikab nikah nikau nills nimbi nimbs nimps niner nines ninon nipas nippy niqab nirls nirly nisei nisse nisus niter nites nitid niton nitre nitro nitry nitty nival nixed nixer nixes nixie nizam nkosi noahs nobby nocks nodal noddy nodes nodus noels noggs nohow noils noily noint noirs noles nolls nolos nomas nomen nomes nomic nomoi nomos nonas nonce nones nonet nongs nonis nonny nonyl noobs nooit nooks nooky noons noops nopal noria noris norks norma norms nosed noser noses notal noted noter notes notum nould noule nouls nouns nouny noups novae novas novum noway nowed nowls nowts nowty noxal noxes noyau noyed noyes nubby nubia nucha nuddy nuder nudes nudie nudzh nuffs nugae nuked nukes nulla nulls numbs numen nummy nunny nurds nurdy nurls nurrs nutso nutsy nyaff nyala nying nyssa oaked oaker oakum oared oases oasis oasts oaten oater oaths oaves obang obeah obeli obeys obias obied obiit obits objet oboes obole oboli obols occam ocher oches ochre ochry ocker ocrea octad octan octas octyl oculi odahs odals odeon odeum odism odist odium odors odour odyle odyls ofays offed offie oflag ofter ogams ogeed ogees oggin ogham ogive ogled ogler ogles ogmic ogres ohias ohing ohmic ohone oidia oiled oiler oinks oints ojime okapi okays okehs okras oktas oldie oleic olein olent oleos oleum olios ollas ollav oller ollie ology olpae olpes omasa omber ombus omens omers omits omlah omovs omrah oncer onces oncet oncus onely oners onery onium onkus onlay onned ontic oobit oohed oomph oonts ooped oorie ooses ootid oozed oozes opahs opals opens opepe oping oppos opsin opted opter orach oracy orals orang orant orate orbed orcas orcin ordos oread orfes orgia orgic orgue oribi oriel orixa orles orlon orlop ormer ornis orpin orris ortho orval orzos oscar oshac osier osmic osmol ossia ostia otaku otary ottar ottos oubit oucht ouens ouija oulks oumas oundy oupas ouped ouphe ouphs ourie ousel ousts outby outed outre outro outta ouzel ouzos ovals ovels ovens overs ovist ovoli ovolo ovule owche owies owled owler owlet owned owres owrie owsen oxbow oxers oxeye oxids oxies oxime oxims oxlip oxter oyers ozeki ozzie paals paans pacas paced pacer paces pacey pacha packs pacos pacta pacts padis padle padma padre padri paean paedo paeon paged pager pages pagle pagod pagri paiks pails pains paire pairs paisa paise pakka palas palay palea paled pales palet palis palki palla palls pally palms palmy palpi palps palsa pampa panax pance panda pands pandy paned panes panga pangs panim panko panne panni panto pants panty paoli paolo papas papaw papes pappi pappy parae paras parch pardi pards pardy pared paren pareo pares pareu parev parge pargo paris parki parks parky parle parly parma parol parps parra parrs parti parts parve parvo paseo pases pasha pashm paska paspy passe pasts pated paten pater pates paths patin patka patly patte patus pauas pauls pavan paved paven paver paves pavid pavin pavis pawas pawaw pawed pawer pawks pawky pawls pawns paxes payed payor paysd peage peags peaks peaky peals peans peare pears peart pease peats peaty peavy peaze pebas pechs pecke pecks pecky pedes pedis pedro peece peeks peels peens peeoy peepe peeps peers peery peeve peggy peghs peins peise peize pekan pekes pekin pekoe pelas pelau peles pelfs pells pelma pelon pelta pelts pends pendu pened penes pengo penie penis penks penna penni pents peons peony pepla pepos peppy pepsi perai perce percs perdu perdy perea peres peris perks perms perns perog perps perry perse perst perts perve pervo pervs pervy pesos pests pesty petar peter petit petre petri petti petto pewee pewit peyse phage phang phare pharm pheer phene pheon phese phial phish phizz phlox phoca phono phons phots phpht phuts phyla phyle piani pians pibal pical picas piccy picks picot picra picul piend piers piert pieta piets piezo pight pigmy piing pikas pikau piked piker pikes pikey pikis pikul pilae pilaf pilao pilar pilau pilaw pilch pilea piled pilei piler piles pilis pills pilow pilum pilus pimas pimps pinas pined pines pingo pings pinko pinks pinna pinny pinon pinot pinta pints pinup pions piony pious pioye pioys pipal pipas piped pipes pipet pipis pipit pippy pipul pirai pirls pirns pirog pisco pises pisky pisos pissy piste pitas piths piton pitot pitta piums pixes pized pizes plaas plack plage plans plaps plash plasm plast plats platt platy playa plays pleas plebe plebs plena pleon plesh plews plica plies plims pling plink ploat plods plong plonk plook plops plots plotz plouk plows ploye ploys plues pluff plugs plums plumy pluot pluto plyer poach poaka poake poboy pocks pocky podal poddy podex podge podgy podia poems poeps poets pogey pogge pogos pohed poilu poind pokal poked pokes pokey pokie poled poler poles poley polio polis polje polks polls polly polos polts polys pombe pomes pommy pomos pomps ponce poncy ponds pones poney ponga pongo pongs pongy ponks ponts ponty ponzu poods pooed poofs poofy poohs pooja pooka pooks pools poons poops poopy poori poort poots poove poovy popes poppa popsy porae poral pored porer pores porge porgy porin porks porky porno porns porny porta ports porty posed poses posey posho posts potae potch poted potes potin potoo potsy potto potts potty pouff poufs pouke pouks poule poulp poult poupe poupt pours pouts powan powin pownd powns powny powre poxed poxes poynt poyou poyse pozzy praam prads prahu prams prana prang praos prase prate prats pratt praty praus prays predy preed prees preif prems premy prent preon preop preps presa prese prest preve prexy preys prial pricy prief prier pries prigs prill prima primi primp prims primy prink prion prise priss proas probs prods proem profs progs proin proke prole proll promo proms pronk props prore proso pross prost prosy proto proul prows proyn prunt pruta pryer pryse pseud pshaw psion psoae psoai psoas psora psych psyop pubco pubes pubis pucan pucer puces pucka pucks puddy pudge pudic pudor pudsy pudus puers puffa puffs puggy pugil puhas pujah pujas pukas puked puker pukes pukey pukka pukus pulao pulas puled puler pules pulik pulis pulka pulks pulli pulls pully pulmo pulps pulus pumas pumie pumps punas punce punga pungs punji punka punks punky punny punto punts punty pupae pupas pupus purda pured pures purin puris purls purpy purrs pursy purty puses pusle pussy putid puton putti putto putts puzel pwned pyats pyets pygal pyins pylon pyned pynes pyoid pyots pyral pyran pyres pyrex pyric pyros pyxed pyxes pyxie pyxis pzazz qadis qaids qajaq qanat qapik qibla qophs qorma quads quaff quags quair quais quaky quale quant quare quass quate quats quayd quays qubit quean queme quena quern queyn queys quich quids quiff quims quina quine quino quins quint quipo quips quipu quire quirt quist quits quoad quods quoif quoin quoit quoll quonk quops qursh quyte rabat rabic rabis raced races rache racks racon radge radix radon raffs rafts ragas ragde raged ragee rager rages ragga raggs raggy ragis ragus rahed rahui raias raids raiks raile rails raine rains raird raita raits rajas rajes raked rakee raker rakes rakia rakis rakus rales ramal ramee ramet ramie ramin ramis rammy ramps ramus ranas rance rands ranee ranga rangi rangs rangy ranid ranis ranke ranks rants raped raper rapes raphe rappe rared raree rares rarks rased raser rases rasps rasse rasta ratal ratan ratas ratch rated ratel rater rates ratha rathe raths ratoo ratos ratus rauns raupo raved ravel raver raves ravey ravin rawer rawin rawly rawns raxed raxes rayah rayas rayed rayle rayne razed razee razer razes razoo readd reads reais reaks realo reals reame reams reamy reans reaps rears reast reata reate reave rebbe rebec rebid rebit rebop rebuy recal recce recco reccy recit recks recon recta recti recto redan redds reddy reded redes redia redid redip redly redon redos redox redry redub redux redye reech reede reeds reefs reefy reeks reeky reels reens reest reeve refed refel reffo refis refix refly refry regar reges reggo regie regma regna regos regur rehem reifs reify reiki reiks reink reins reird reist reive rejig rejon reked rekes rekey relet relie relit rello reman remap remen remet remex remix renay rends reney renga renig renin renne renos rente rents reoil reorg repeg repin repla repos repot repps repro reran rerig resat resaw resay resee reses resew resid resit resod resow resto rests resty resus retag retax retem retia retie retox revet revie rewan rewax rewed rewet rewin rewon rewth rexes rezes rheas rheme rheum rhies rhime rhine rhody rhomb rhone rhumb rhyne rhyta riads rials riant riata ribas ribby ribes riced ricer rices ricey richt ricin ricks rides ridgy ridic riels riems rieve rifer riffs rifte rifts rifty riggs rigol riled riles riley rille rills rimae rimed rimer rimes rimus rinds rindy rines rings rinks rioja riots riped ripes ripps rises rishi risks risps risus rites ritts ritzy rivas rived rivel riven rives riyal rizas roads roams roans roars roary roate robed robes roble rocks roded rodes roguy rohes roids roils roily roins roist rojak rojis roked roker rokes rolag roles rolfs rolls romal roman romeo romps ronde rondo roneo rones ronin ronne ronte ronts roods roofs roofy rooks rooky rooms roons roops roopy roosa roose roots rooty roped roper ropes ropey roque roral rores roric rorid rorie rorts rorty rosed roses roset roshi rosin rosit rosti rosts rotal rotan rotas rotch roted rotes rotis rotls roton rotos rotte rouen roues roule rouls roums roups roupy roust routh routs roved roven roves rowan rowed rowel rowen rowie rowme rownd rowth rowts royne royst rozet rozit ruana rubai rubby rubel rubes rubin ruble rubli rubus ruche rucks rudas rudds rudes rudie rudis rueda ruers ruffe ruffs rugae rugal ruggy ruing ruins rukhs ruled rules rumal rumbo rumen rumes rumly rummy rumpo rumps rumpy runch runds runed runes rungs runic runny runts runty rupia rurps rurus rusas ruses rushy rusks rusma russe rusts ruths rutin rutty ryals rybat ryked rykes rymme rynds ryots ryper saags sabal sabed saber sabes sabha sabin sabir sable sabot sabra sabre sacks sacra saddo sades sadhe sadhu sadis sados sadza safed safes sagas sager sages saggy sagos sagum saheb sahib saice saick saics saids saiga sails saims saine sains sairs saist saith sajou sakai saker sakes sakia sakis sakti salal salat salep sales salet salic salix salle salmi salol salop salpa salps salse salto salts salue salut saman samas samba sambo samek samel samen sames samey samfu sammy sampi samps sands saned sanes sanga sangh sango sangs sanko sansa santo sants saola sapan sapid sapor saran sards sared saree sarge sargo sarin saris sarks sarky sarod saros sarus saser sasin sasse satai satay sated satem sates satis sauba sauch saugh sauls sault saunt saury sauts saved saver saves savey savin sawah sawed sawer saxes sayed sayer sayid sayne sayon sayst sazes scabs scads scaff scags scail scala scall scams scand scans scapa scape scapi scarp scars scart scath scats scatt scaud scaup scaur scaws sceat scena scend schav schmo schul schwa sclim scody scogs scoog scoot scopa scops scots scoug scoup scowp scows scrab scrae scrag scran scrat scraw scray scrim scrip scrob scrod scrog scrow scudi scudo scuds scuff scuft scugs sculk scull sculp sculs scums scups scurf scurs scuse scuta scute scuts scuzz scyes sdayn sdein seals seame seams seamy seans seare sears sease seats seaze sebum secco sechs sects seder sedes sedge sedgy sedum seeds seeks seeld seels seely seems seeps seepy seers sefer segar segni segno segol segos sehri seifs seils seine seirs seise seism seity seiza sekos sekts selah seles selfs sella selle sells selva semee semes semie semis senas sends senes sengi senna senor sensa sensi sente senti sents senvy senza sepad sepal sepic sepoy septa septs serac serai seral sered serer seres serfs serge seric serin serks seron serow serra serre serrs serry servo sesey sessa setae setal seton setts sewan sewar sewed sewel sewen sewin sexed sexer sexes sexto sexts seyen shads shags shahs shako shakt shalm shaly shama shams shand shans shaps sharn shash shaul shawm shawn shaws shaya shays shchi sheaf sheal sheas sheds sheel shend shent sheol sherd shere shero shets sheva shewn shews shiai shiel shier shies shill shily shims shins ships shirr shirs shish shiso shist shite shits shiur shiva shive shivs shlep shlub shmek shmoe shoat shoed shoer shoes shogi shogs shoji shojo shola shool shoon shoos shope shops shorl shote shots shott showd shows shoyu shred shris shrow shtik shtum shtup shule shuln shuls shuns shura shute shuts shwas shyer sials sibbs sibyl sices sicht sicko sicks sicky sidas sided sider sides sidha sidhe sidle sield siens sient sieth sieur sifts sighs sigil sigla signa signs sijos sikas siker sikes silds siled silen siler siles silex silks sills silos silts silty silva simar simas simba simis simps simul sinds sined sines sings sinhs sinks sinky sinus siped sipes sippy sired siree sires sirih siris siroc sirra sirup sisal sises sista sists sitar sited sites sithe sitka situp situs siver sixer sixes sixmo sixte sizar sized sizel sizer sizes skags skail skald skank skart skats skatt skaws skean skear skeds skeed skeef skeen skeer skees skeet skegg skegs skein skelf skell skelm skelp skene skens skeos skeps skers skets skews skids skied skies skiey skimo skims skink skins skint skios skips skirl skirr skite skits skive skivy sklim skoal skody skoff skogs skols skool skort skosh skran skrik skuas skugs skyed skyer skyey skyfs skyre skyrs skyte slabs slade slaes slags slaid slake slams slane slank slaps slart slats slaty slaws slays slebs sleds sleer slews sleys slier slily slims slipe slips slipt slish slits slive sloan slobs sloes slogs sloid slojd slomo sloom sloot slops slopy slorm slots slove slows sloyd slubb slubs slued slues sluff slugs sluit slums slurb slurs sluse sluts slyer slype smaak smaik smalm smalt smarm smaze smeek smees smeik smeke smerk smews smirr smirs smits smogs smoko smolt smoor smoot smore smorg smout smowt smugs smurs smush smuts snabs snafu snags snaps snarf snark snars snary snash snath snaws snead sneap snebs sneck sneds sneed snees snell snibs snick snies snift snigs snips snipy snirt snits snobs snods snoek snoep snogs snoke snood snook snool snoot snots snowk snows snubs snugs snush snyes soaks soaps soare soars soave sobas socas soces socko socks socle sodas soddy sodic sodom sofar sofas softa softs softy soger sohur soils soily sojas sojus sokah soken sokes sokol solah solan solas solde soldi soldo solds soled solei soler soles solon solos solum solus soman somas sonce sonde sones songs sonly sonne sonny sonse sonsy sooey sooks sooky soole sools sooms soops soote soots sophs sophy sopor soppy sopra soral soras sorbo sorbs sorda sordo sords sored soree sorel sorer sores sorex sorgo sorns sorra sorta sorts sorus soths sotol souce souct sough souks souls soums soups soupy sours souse souts sowar sowce sowed sowff sowfs sowle sowls sowms sownd sowne sowps sowse sowth soyas soyle soyuz sozin spacy spado spaed spaer spaes spags spahi spail spain spait spake spald spale spall spalt spams spane spang spans spard spars spart spate spats spaul spawl spaws spayd spays spaza spazz speal spean speat specs spect speel speer speil speir speks speld spelk speos spets speug spews spewy spial spica spick spics spide spier spies spiff spifs spiks spile spims spina spink spins spirt spiry spits spitz spivs splay splog spode spods spoom spoor spoot spork sposh spots sprad sprag sprat spred sprew sprit sprod sprog sprue sprug spuds spued spuer spues spugs spule spume spumy spurs sputa spyal spyre squab squaw squeg squid squit squiz stabs stade stags stagy staig stane stang staph staps starn starr stars stats staun staws stays stean stear stedd stede steds steek steem steen steil stela stele stell steme stems stend steno stens stent steps stept stere stets stews stewy steys stich stied sties stilb stile stime stims stimy stipa stipe stire stirk stirp stirs stive stivy stoae stoai stoas stoat stobs stoep stogy stoit stoln stoma stond stong stonk stonn stook stoor stope stops stopt stoss stots stott stoun stoup stour stown stowp stows strad strae strag strak strep strew stria strig strim strop strow stroy strum stubs stude studs stull stulm stumm stums stuns stupa stupe sture sturt styed styes styli stylo styme stymy styre styte subah subas subby suber subha succi sucks sucky sucre sudds sudor sudsy suede suent suers suete suets suety sugan sughs sugos suhur suids suint suits sujee sukhs sukuk sulci sulfa sulfo sulks sulph sulus sumis summa sumos sumph sumps sunis sunks sunna sunns sunup supes supra surah sural suras surat surds sured sures surfs surfy surgy surra sused suses susus sutor sutra sutta swabs swack swads swage swags swail swain swale swaly swamy swang swank swans swaps swapt sward sware swarf swart swats swayl sways sweal swede sweed sweel sweer swees sweir swelt swerf sweys swies swigs swile swims swink swipe swire swiss swith swits swive swizz swobs swole swoln swops swopt swots swoun sybbe sybil syboe sybow sycee syces sycon syens syker sykes sylis sylph sylva symar synch syncs synds syned synes synth syped sypes syphs syrah syren sysop sythe syver taals taata taber tabes tabid tabis tabla tabor tabun tabus tacan taces tacet tache tacho tachs tacks tacos tacts taels tafia taggy tagma tahas tahrs taiga taigs taiko tails tains taira taish taits tajes takas takes takhi takin takis takky talak talaq talar talas talcs talcy talea taler tales talks talky talls talma talpa taluk talus tamal tamed tames tamin tamis tammy tamps tanas tanga tangi tangs tanhs tanka tanks tanky tanna tansy tanti tanto tanty tapas taped tapen tapes tapet tapis tappa tapus taras tardo tared tares targa targe tarns taroc tarok taros tarps tarre tarry tarsi tarts tarty tasar tased taser tases tasks tassa tasse tasso tatar tater tates taths tatie tatou tatts tatus taube tauld tauon taupe tauts tavah tavas taver tawai tawas tawed tawer tawie tawse tawts taxed taxer taxes taxis taxol taxon taxor taxus tayra tazza tazze teade teads teaed teaks teals teams tears teats teaze techs techy tecta teels teems teend teene teens teeny teers teffs teggs tegua tegus tehrs teiid teils teind teins telae telco teles telex telia telic tells telly teloi telos temed temes tempi temps tempt temse tench tends tendu tenes tenge tenia tenne tenno tenny tenon tents tenty tenue tepal tepas tepoy terai teras terce terek teres terfe terfs terga terms terne terns terry terts tesla testa teste tests tetes teths tetra tetri teuch teugh tewed tewel tewit texas texes texts thack thagi thaim thale thali thana thane thang thans thanx tharm thars thaws thawy thebe theca theed theek thees thegn theic thein thelf thema thens theow therm thesp thete thews thewy thigs thilk thill thine thins thiol thirl thoft thole tholi thoro thorp thous thowl thrae thraw thrid thrip throe thuds thugs thuja thunk thurl thuya thymi thymy tians tiars tical ticca ticed tices tichy ticks ticky tiddy tided tides tiers tiffs tifos tifts tiges tigon tikas tikes tikis tikka tilak tiled tiler tiles tills tilly tilth tilts timbo timed times timon timps tinas tinct tinds tinea tined tines tinge tings tinks tinny tints tinty tipis tippy tired tires tirls tiros tirrs titch titer titis titre titty titup tiyin tiyns tizes tizzy toads toady toaze tocks tocky tocos todde toeas toffs toffy tofts tofus togae togas toged toges togue tohos toile toils toing toise toits tokay toked toker tokes tokos tolan tolar tolas toled toles tolls tolly tolts tolus tolyl toman tombs tomes tomia tommy tomos tondi tondo toned toner tones toney tongs tonka tonks tonne tonus tools tooms toons toots toped topee topek toper topes tophe tophi tophs topis topoi topos toppy toque torah toran toras torcs tores toric torii toros torot torrs torse torsi torsk torta torte torts tosas tosed toses toshy tossy toted toter totes totty touks touns tours touse tousy touts touze touzy towed towie towns towny towse towsy towts towze towzy toyed toyer toyon toyos tozed tozes tozie trabs trads tragi traik trams trank tranq trans trant trape traps trapt trass trats tratt trave trayf trays treck treed treen trees trefa treif treks trema trems tress trest trets trews treyf treys triac tride trier tries triff trigo trigs trike trild trill trims trine trins triol trior trios trips tripy trist troad troak troat trock trode trods trogs trois troke tromp trona tronc trone tronk trons trooz troth trots trows troys trued trues trugo trugs trull tryer tryke tryma tryps tsade tsadi tsars tsked tsuba tsubo tuans tuart tuath tubae tubar tubas tubby tubed tubes tucks tufas tuffe tuffs tufts tufty tugra tuile tuina tuism tuktu tules tulpa tulsi tumid tummy tumps tumpy tunas tunds tuned tuner tunes tungs tunny tupek tupik tuple tuque turds turfs turfy turks turme turms turns turnt turps turrs tushy tusks tusky tutee tutti tutty tutus tuxes tuyer twaes twain twals twank twats tways tweel tween tweep tweer twerk twerp twier twigs twill twilt twink twins twiny twire twirp twite twits twoer twyer tyees tyers tyiyn tykes tyler tymps tynde tyned tynes typal typed types typey typic typos typps typto tyran tyred tyres tyros tythe tzars udals udons ugali ugged uhlan uhuru ukase ulama ulans ulema ulmin ulnad ulnae ulnar ulnas ulpan ulvas ulyie ulzie umami umbel umber umble umbos umbre umiac umiak umiaq ummah ummas ummed umped umphs umpie umpty umrah umras unais unapt unarm unary unaus unbag unban unbar unbed unbid unbox uncap unces uncia uncos uncoy uncus undam undee undos undug uneth unfix ungag unget ungod ungot ungum unhat unhip unica units unjam unked unket unkid unlaw unlay unled unlet unlid unman unmew unmix unpay unpeg unpen unpin unred unrid unrig unrip unsaw unsay unsee unsew unsex unsod untax untin unwet unwit unwon upbow upbye updos updry upend upjet uplay upled uplit upped upran uprun upsee upsey uptak upter uptie uraei urali uraos urare urari urase urate urbex urbia urdee ureal ureas uredo ureic urena urent urged urger urges urial urite urman urnal urned urped ursae ursid urson urubu urvas users usnea usque usure usury uteri uveal uveas uvula vacua vaded vades vagal vagus vails vaire vairs vairy vakas vakil vales valis valse vamps vampy vanda vaned vanes vangs vants vaped vaper vapes varan varas vardy varec vares varia varix varna varus varve vasal vases vasts vasty vatic vatus vauch vaute vauts vawte vaxes veale veals vealy veena veeps veers veery vegas veges vegie vegos vehme veils veily veins veiny velar velds veldt veles vells velum venae venal vends vendu veney venge venin vents venus verbs verra verry verst verts vertu vespa vesta vests vetch vexed vexer vexes vexil vezir vials viand vibes vibex vibey viced vices vichy viers views viewy vifda viffs vigas vigia vilde viler villi vills vimen vinal vinas vinca vined viner vines vinew vinic vinos vints viold viols vired vireo vires virga virge virid virls virtu visas vised vises visie visne vison visto vitae vitas vitex vitro vitta vivas vivat vivda viver vives vizir vizor vleis vlies vlogs voars vocab voces voddy vodou vodun voema vogie voids voile voips volae volar voled voles volet volks volta volte volti volts volva volve vomer voted votes vouge voulu vowed vower voxel vozhd vraic vrils vroom vrous vrouw vrows vuggs vuggy vughs vughy vulgo vulns vulva vutty waacs wacke wacko wacks wadds waddy waded wader wades wadge wadis wadts waffs wafts waged wages wagga wagyu wahoo waide waifs waift wails wains wairs waite waits wakas waked waken waker wakes wakfs waldo walds waled waler wales walie walis walks walla walls wally walty wamed wames wamus wands waned wanes waney wangs wanks wanky wanle wanly wanna wants wanty wanze waqfs warbs warby wards wared wares warez warks warms warns warps warre warst warts wases washy wasms wasps waspy wasts watap watts wauff waugh wauks waulk wauls waurs waved waves wavey wawas wawes wawls waxed waxer waxes wayed wazir wazoo weald weals weamb weans wears webby weber wecht wedel wedgy weeds weeke weeks weels weems weens weeny weeps weepy weest weete weets wefte wefts weids weils weirs weise weize wekas welds welke welks welkt wells welly welts wembs wends wenge wenny wents weros wersh wests wetas wetly wexed wexes whamo whams whang whaps whare whata whats whaup whaur wheal whear wheen wheep wheft whelk whelm whens whets whews wheys whids whift whigs whilk whims whins whios whips whipt whirr whirs whish whiss whist whits whity whizz whomp whoof whoot whops whore whorl whort whoso whows whump whups whyda wicca wicks wicky widdy wides wiels wifed wifes wifey wifie wifty wigan wigga wiggy wikis wilco wilds wiled wiles wilga wilis wilja wills wilts wimps winds wined wines winey winge wings wingy winks winna winns winos winze wiped wiper wipes wired wirer wires wirra wised wises wisha wisht wisps wists witan wited wites withe withs withy wived wiver wives wizen wizes woads woald wocks wodge woful wojus woker wokka wolds wolfs wolly wolve wombs womby womyn wonga wongi wonks wonky wonts woods wooed woofs woofy woold wools woons woops woopy woose woosh wootz words works worms wormy worts wowed wowee woxen wrang wraps wrapt wrast wrate wrawl wrens wrick wried wrier wries writs wroke wroot wroth wryer wuddy wudus wulls wurst wuses wushu wussy wuxia wyled wyles wynds wynns wyted wytes xebec xenia xenic xenon xeric xerox xerus xoana xrays xylan xylem xylic xylol xylyl xysti xysts yaars yabas yabba yabby yacca yacka yacks yaffs yager yages yagis yahoo yaird yakka yakow yales yamen yampy yamun yangs yanks yapok yapon yapps yappy yarak yarco yards yarer yarfa yarks yarns yarrs yarta yarto yates yauds yauld yaups yawed yawey yawls yawns yawny yawps ybore yclad ycled ycond ydrad ydred yeads yeahs yealm yeans yeard years yecch yechs yechy yedes yeeds yeesh yeggs yelks yells yelms yelps yelts yenta yente yerba yerds yerks yeses yesks yests yesty yetis yetts yeuks yeuky yeven yeves yewen yexed yexes yfere yiked yikes yills yince yipes yippy yirds yirks yirrs yirth yites yitie ylems ylike ylkes ymolt ympes yobbo yobby yocks yodel yodhs yodle yogas yogee yoghs yogic yogin yogis yoick yojan yoked yokel yoker yokes yokul yolks yolky yomim yomps yonic yonis yonks yoofs yoops yores yorks yorps youks yourn yours yourt youse yowed yowes yowie yowls yowza yrapt yrent yrivd yrneh ysame ytost yuans yucas yucca yucch yucko yucks yucky yufts yugas yuked yukes yukky yukos yulan yules yummo yummy yumps yupon yuppy yurta yurts yuzus zabra zacks zaida zaidy zaire zakat zaman zambo zamia zanja zante zanza zanze zappy zarfs zaris zatis zaxes zayin zazen zeals zebec zebub zebus zedas zeins zendo zerda zerks zeros zests zetas zexes zezes zhomo zibet ziffs zigan zilas zilch zilla zills zimbi zimbs zinco zincs zincy zineb zines zings zingy zinke zinky zippo zippy ziram zitis zizel zizit zlote zloty zoaea zobos zobus zocco zoeae zoeal zoeas zoism zoist zombi zonae zonda zoned zoner zones zonks zooea zooey zooid zooks zooms zoons zooty zoppa zoppo zoril zoris zorro zouks zowee zowie zulus zupan zupas zuppa zurfs zuzim zygal zygon zymes zymic`.split(/\s+/);
+
+const RAW_POKEMON = `Bulbasaur Ivysaur Venusaur Charmander Charmeleon Charizard Squirtle Wartortle Blastoise Caterpie Metapod Butterfree Weedle Kakuna Beedrill Pidgey Pidgeotto Pidgeot Rattata Raticate Spearow Fearow Ekans Arbok Pikachu Raichu Sandshrew Sandslash NidoranF Nidorina Nidoqueen NidoranM Nidorino Nidoking Clefairy Clefable Vulpix Ninetales Jigglypuff Wigglytuff Zubat Golbat Oddish Gloom Vileplume Paras Parasect Venonat Venomoth Diglett Dugtrio Meowth Persian Psyduck Golduck Mankey Primeape Growlithe Arcanine Poliwag Poliwhirl Poliwrath Abra Kadabra Alakazam Machop Machoke Machamp Bellsprout Weepinbell Victreebel Tentacool Tentacruel Geodude Graveler Golem Ponyta Rapidash Slowpoke Slowbro Magnemite Farfetchd Doduo Dodrio Seel Dewgong Grimer Muk Shellder Cloyster Gastly Haunter Gengar Onix Drowzee Hypno Krabby Kingler Voltorb Electrode Exeggcute Exeggutor Cubone Marowak Hitmonlee Hitmonchan Lickitung Koffing Weezing Rhyhorn Rhydon Chansey Tangela Kangaskhan Horsea Seadra Goldeen Seaking Staryu Starmie MrMime Scyther Jynx Electabuzz Magmar Pinsir Tauros Magikarp Gyarados Lapras Ditto Eevee Vaporeon Jolteon Flareon Porygon Omanyte Omastar Kabuto Kabutops Aerodactyl Snorlax Articuno Zapdos Moltres Dratini Dragonair Dragonite Mewtwo Mew Chikorita Bayleef Meganium Cyndaquil Quilava Typhlosion Totodile Croconaw Feraligatr Sentret Furret Hoothoot Noctowl Ledyba Ledian Spinarak Ariados Crobat Chinchou Lanturn Pichu Cleffa Igglybuff Togepi Togetic Natu Xatu Mareep Flaaffy Ampharos Bellossom Marill Azumarill Sudowoodo Politoed Hoppip Skiploom Jumpluff Aipom Sunkern Sunflora Yanma Wooper Quagsire Espeon Umbreon Murkrow Slowking Misdreavus Unown Wobbuffet Girafarig Pineco Forretress Dunsparce Gligar Steelix Snubbull Granbull Qwilfish Scizor Shuckle Heracross Sneasel Teddiursa Ursaring Slugma Magcargo Swinub Piloswine Corsola Remoraid Octillery Delibird Mantine Skarmory Houndour Houndoom Kingdra Phanpy Donphan Porygon2 Stantler Smeargle Tyrogue Hitmontop Smoochum Elekid Magby Miltank Blissey Raikou Entei Suicune Larvitar Pupitar Tyranitar Lugia HoOh Celebi Treecko Grovyle Sceptile Torchic Combusken Blaziken Mudkip Marshtomp Swampert Poochyena Mightyena Zigzagoon Linoone Wurmple Silcoon Beautifly Cascoon Dustox Lotad Lombre Ludicolo Seedot Nuzleaf Shiftry Taillow Swellow Wingull Pelipper Ralts Kirlia Gardevoir Surskit Masquerain Shroomish Breloom Slakoth Vigoroth Slaking Nincada Ninjask Shedinja Whismur Loudred Exploud Makuhita Hariyama Azurill Nosepass Skitty Delcatty Sableye Mawile Aron Lairon Aggron Meditite Medicham Electrike Manectric Plusle Minun Volbeat Illumise Roselia Gulpin Swalot Carvanha Sharpedo Wailmer Wailord Numel Camerupt Torkoal Spoink Grumpig Spinda Trapinch Vibrava Flygon Cacnea Cacturne Swablu Altaria Zangoose Seviper Lunatone Solrock Barboach Whiscash Corphish Crawdaunt Baltoy Claydol Lileep Cradily Anorith Armaldo Feebas Milotic Castform Kecleon Shuppet Banette Duskull Dusclops Tropius Chimecho Absol Wynaut Snorunt Glalie Spheal Sealeo Walrein Clamperl Huntail Gorebyss Relicanth Luvdisc Bagon Shelgon Salamence Beldum Metang Metagross Regirock Regice Registeel Latias Latios Kyogre Groudon Rayquaza Jirachi Deoxys Turtwig Grotle Torterra Chimchar Monferno Infernape Piplup Prinplup Empoleon Starly Staravia Staraptor Bidoof Bibarel Kricketot Kricketune Shinx Luxio Luxray Budew Roserade Cranidos Rampardos Shieldon Bastiodon Burmy Wormadam Mothim Combee Vespiquen Pachirisu Buizel Floatzel Cherubi Cherrim Shellos Gastrodon Ambipom Drifloon Drifblim Buneary Lopunny Mismagius Honchkrow Glameow Purugly Chingling Stunky Skuntank Bronzor Bronzong Bonsly MimeJr Happiny Chatot Spiritomb Gible Gabite Garchomp Munchlax Riolu Lucario Hippopotas Hippowdon Skorupi Drapion Croagunk Toxicroak Carnivine Finneon Lumineon Mantyke Snover Abomasnow Weavile Magnezone Lickilicky Rhyperior Tangrowth Electivire Magmortar Togekiss Yanmega Leafeon Glaceon Gliscor Mamoswine PorygonZ Gallade Probopass Dusknoir Froslass Rotom Uxie Mesprit Azelf Dialga Palkia Heatran Regigigas Giratina Cresselia Phione Manaphy Darkrai Shaymin Arceus Victini Snivy Servine Serperior Tepig Pignite Emboar Oshawott Dewott Samurott Patrat Watchog Lillipup Herdier Stoutland Purrloin Liepard Pansage Simisage Pansear Simisear Panpour Simipour Munna Musharna Pidove Tranquill Unfezant Blitzle Zebstrika Roggenrola Boldore Gigalith Woobat Swoobat Drilbur Excadrill Audino Timburr Gurdurr Conkeldurr Tympole Palpitoad Seismitoad Throh Sawk Sewaddle Swadloon Leavanny Venipede Whirlipede Scolipede Cottonee Whimsicott Petilil Lilligant Basculin Sandile Krokorok Krookodile Darumaka Darmanitan Maractus Dwebble Crustle Scraggy Scrafty Sigilyph Yamask Cofagrigus Tirtouga Carracosta Archen Archeops Trubbish Garbodor Zorua Zoroark Minccino Cinccino Gothita Gothorita Gothitelle Solosis Duosion Reuniclus Ducklett Swanna Vanillite Vanillish Vanilluxe Deerling Sawsbuck Emolga Karrablast Escavalier Foongus Amoonguss Frillish Jellicent Alomomola Joltik Galvantula Ferroseed Ferrothorn Klink Klang Klinklang Tynamo Eelektrik Eelektross Elgyem Beheeyem Litwick Lampent Chandelure Axew Fraxure Haxorus Cubchoo Beartic Cryogonal Shelmet Accelgor Stunfisk Mienfoo Mienshao Druddigon Golett Golurk Pawniard Bisharp Bouffalant Rufflet Braviary Vullaby Mandibuzz Heatmor Durant Deino Zweilous Hydreigon Larvesta Volcarona Cobalion Terrakion Virizion Tornadus Thundurus Reshiram Zekrom Landorus Kyurem Keldeo Meloetta Genesect Chespin Quilladin Chesnaught Fennekin Braixen Delphox Froakie Frogadier Greninja Bunnelby Diggersby Fletchling Fletchinder Talonflame Scatterbug Spewpa Vivillon Litleo Pyroar Flabebe Floette Florges Skiddo Gogoat Pancham Pangoro Furfrou Espurr Meowstic Honedge Doublade Aegislash Spritzee Aromatisse Swirlix Slurpuff Inkay Malamar Binacle Barbaracle Skrelp Dragalge Clauncher Clawitzer Helioptile Heliolisk Tyrunt Tyrantrum Amaura Aurorus Sylveon Hawlucha Dedenne Carbink Goomy Sliggoo Goodra Klefki Phantump Trevenant Pumpkaboo Gourgeist Bergmite Avalugg Noibat Noivern Xerneas Yveltal Zygarde Diancie Hoopa Volcanion Rowlet Dartrix Decidueye Litten Torracat Incineroar Popplio Brionne Primarina Pikipek Trumbeak Toucannon Yungoos Gumshoos Grubbin Charjabug Vikavolt Crabrawler Crabominable Oricorio Cutiefly Ribombee Rockruff Lycanroc Wishiwashi Mareanie Toxapex Mudbray Mudsdale Dewpider Araquanid Fomantis Lurantis Morelull Shiinotic Salandit Salazzle Stufful Bewear Bounsweet Steenee Tsareena Comfey Oranguru Passimian Wimpod Golisopod Sandygast Palossand Pyukumuku TypeNull Silvally Minior Komala Turtonator Togedemaru Mimikyu Bruxish Drampa Dhelmise Jangmoo Hakamoo Kommoo TapuKoko TapuLele TapuBulu TapuFini Cosmog Cosmoem Solgaleo Lunala Nihilego Buzzwole Pheromosa Xurkitree Celesteela Kartana Guzzlord Necrozma Magearna Marshadow Poipole Naganadel Stakataka Blacephalon Zeraora Meltan Melmetal Grookey Thwackey Rillaboom Scorbunny Raboot Cinderace Sobble Drizzile Inteleon Skwovet Greedent Rookidee Corvisquire Corviknight Blipbug Dottler Orbeetle Nickit Thievul Gossifleur Eldegoss Wooloo Dubwool Chewtle Drednaw Yamper Boltund Rolycoly Carkol Coalossal Applin Flapple Appletun Silicobra Sandaconda Cramorant Arrokuda Barraskewda Toxel Toxtricity Sizzlipede Centiskorch Clobbopus Grapploct Sinistea Polteageist Hatenna Hattrem Hatterene Impidimp Morgrem Grimmsnarl Obstagoon Perrserker Cursola Sirfetchd MrRime Runerigus Milcery Alcremie Falinks Pincurchin Snom Frosmoth Stonjourner Eiscue Indeedee Morpeko Cufant Copperajah Dracozolt Arctozolt Dracovish Arctovish Duraludon Dreepy Drakloak Dragapult Zacian Zamazenta Eternatus Kubfu Urshifu Zarude Regieleki Regidrago Glastrier Spectrier Calyrex Wyrdeer Kleavor Ursaluna Basculegion Sneasler Overqwil Enamorus Sprigatito Floragato Meowscarada Fuecoco Crocalor Skeledirge Quaxly Quaxwell Quaquaval Lechonk Oinkologne Tarountula Spidops Nymble Lokix Pawmi Pawmo Pawmot Tandemaus Maushold Fidough Dachsbun Smoliv Dolliv Arboliva Squawkabilly Nacli Naclstack Garganacl Charcadet Armarouge Ceruledge Tadbulb Bellibolt Wattrel Kilowattrel Maschiff Mabosstiff Shroodle Grafaiai Bramblin Brambleghast Toedscool Toedscruel Klawf Capsakid Scovillain Rellor Rabsca Flittle Espathra Tinkatink Tinkatuff Tinkaton Wiglett Wugtrio Bombirdier Finizen Palafin Varoom Revavroom Cyclizar Orthworm Glimmet Glimmora Greavard Houndstone Flamigo Cetoddle Cetitan Veluza Dondozo Tatsugiri Annihilape Clodsire Farigiraf Dudunsparce Kingambit GreatTusk ScreamTail BruteBonnet FlutterMane SlitherWing SandyShocks IronTreads IronBundle IronHands IronJugulis IronMoth IronThorns Frigibax Arctibax Baxcalibur Gimmighoul Gholdengo WoChien ChienPao TingLu ChiYu RoaringMoon IronValiant Koraidon Miraidon WalkingWake IronLeaves Dipplin Poltchageist Sinistcha Okidogi Munkidori Fezandipiti Ogerpon Archaludon Hydrapple GougingFire RagingBolt IronBoulder IronCrown Terapagos Pecharunt`.split(/\s+/);
+
+const normalizeWord = word => String(word || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z]/g,'');
+const unique = arr => [...new Set(arr.map(normalizeWord).filter(Boolean))];
+const standardAnswers = {
+  4: unique(RAW_STANDARD_4).filter(w => w.length === 4),
+  5: unique(RAW_STANDARD_5).filter(w => w.length === 5),
+  6: unique(RAW_STANDARD_6).filter(w => w.length === 6)
+};
+const standardAllowed = {
+  4: standardAnswers[4],
+  5: unique([...RAW_STANDARD_5, ...RAW_ALLOWED_EXTRA_5]).filter(w => w.length === 5),
+  6: standardAnswers[6]
+};
+const pokemonEntries = RAW_POKEMON.map(name => ({name, word: normalizeWord(name)})).filter(x => x.word.length >= 4 && x.word.length <= 12);
+const pokemonByLength = pokemonEntries.reduce((map, entry) => {
+  if (!map[entry.word.length]) map[entry.word.length] = [];
+  if (!map[entry.word.length].some(x => x.word === entry.word)) map[entry.word.length].push(entry);
+  return map;
+}, {});
+function pokemonAllowedForLength(len){
+  const pokemonWords = (pokemonByLength[len] || []).map(entry => entry.word);
+  const regularWords = standardAllowed[len] || [];
+  return unique([...regularWords, ...pokemonWords]).filter(word => word.length === len);
+}
+
+const MODES = {
+  classic:{name:'Classic', emoji:'⬜', desc:'One board. Daily or unlimited. The clean baseline.', type:'classic'},
+  multi:{name:'Multi-Board', emoji:'🧩', desc:'2, 4, 8, 16, 32, or 64 boards using one shared guess stream.', type:'multi'},
+  evil:{name:'Evil', emoji:'😈', desc:'The answer dodges you as long as it can.', type:'evil'},
+  reverse:{name:'Reverse', emoji:'↩️', desc:'Work backward from a visible answer by finding words that match each color row.', type:'reverse'},
+  pokemon:{name:'Pokémon', emoji:'⚡', desc:'Guess Pokémon names using themed word banks.', type:'pokemon'}
+};
+
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const els = {
+  app:$('#app'), backBtn:$('#backBtn'), topTitle:$('#topTitle'), topSubtitle:$('#topSubtitle'),
+  home:$('#homeScreen'), setup:$('#setupScreen'), game:$('#gameScreen'), stats:$('#statsScreen'), settings:$('#settingsScreen'),
+  modeTiles:$('#modeTiles'), continueSlot:$('#continueSlot'), setupTitle:$('#setupTitle'), setupDesc:$('#setupDesc'),
+  dailyChoices:$('#dailyChoices'), boardSection:$('#boardSection'), boardChoices:$('#boardChoices'), lengthSection:$('#lengthSection'), lengthChoices:$('#lengthChoices'), hardSection:$('#hardSection'), hardToggle:$('#hardToggle'), hardSwitch:$('#hardSwitch'), startBtn:$('#startBtn'), setupFinePrint:$('#setupFinePrint'),
+  gameMeta:$('#gameMeta'), boards:$('#boards'), keyboard:$('#keyboard'), buffer:$('#buffer'), toast:$('#toast'), targetPattern:$('#targetPattern'), pokemonBankBar:$('#pokemonBankBar'),
+  statsList:$('#statsList'), clearStatsBtn:$('#clearStatsBtn'), themeToggle:$('#themeToggle'), themeSwitch:$('#themeSwitch'), clearCurrentBtn:$('#clearCurrentBtn'), bankSummary:$('#bankSummary'),
+  modalShade:$('#modalShade'), modalTitle:$('#modalTitle'), modalBody:$('#modalBody'), modalActions:$('#modalActions'), modalClose:$('#modalClose')
+};
+
+function safeJsonParse(value, fallback){try{return JSON.parse(value) ?? fallback;}catch{return fallback;}}
+function loadSettings(){return safeJsonParse(localStorage.getItem(STORAGE.settings), {theme:'dark'});} 
+function saveSettings(s){localStorage.setItem(STORAGE.settings, JSON.stringify(s));}
+function loadStats(){return safeJsonParse(localStorage.getItem(STORAGE.stats), {});} 
+function saveStats(s){localStorage.setItem(STORAGE.stats, JSON.stringify(s));}
+function loadCompletedDaily(){return safeJsonParse(localStorage.getItem(STORAGE.completedDaily), {});} 
+function saveCompletedDaily(s){localStorage.setItem(STORAGE.completedDaily, JSON.stringify(s));}
+function todayKey(){const d = new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`;}
+function yesterdayKey(dateKey){const [y,m,d]=dateKey.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()-1); const yy=dt.getFullYear(); const mm=String(dt.getMonth()+1).padStart(2,'0'); const dd=String(dt.getDate()).padStart(2,'0'); return `${yy}-${mm}-${dd}`;}
+function hashString(str){let h=2166136261; for(let i=0;i<str.length;i++){h^=str.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0;}
+function seededRand(seed){let t=seed>>>0; return function(){t += 0x6D2B79F5; let r=Math.imul(t ^ t >>> 15, 1 | t); r ^= r + Math.imul(r ^ r >>> 7, 61 | r); return ((r ^ r >>> 14) >>> 0) / 4294967296;};}
+function pickMany(list, count, seedString){const rand = seededRand(hashString(seedString)); const pool=[...list]; const out=[]; while(pool.length && out.length<count){const idx=Math.floor(rand()*pool.length); out.push(pool.splice(idx,1)[0]);} return out;}
+function randomPickMany(list, count){const pool=[...list]; const out=[]; while(pool.length && out.length<count){const idx=Math.floor(Math.random()*pool.length); out.push(pool.splice(idx,1)[0]);} return out;}
+function cap(s){return String(s).charAt(0).toUpperCase()+String(s).slice(1);}
+function patternToClass(n){return n===2?'correct':n===1?'present':'absent';}
+function patternToEmoji(n){return n===2?'🟩':n===1?'🟨':'⬛';}
+function normalizePattern(pattern, length){
+  const raw = Array.isArray(pattern) ? pattern.join('') : String(pattern || '');
+  return raw.replace(/[^012]/g,'0').padEnd(length,'0').slice(0,length);
+}
+function patternStrength(pattern){
+  return [...String(pattern || '')].reduce((total, ch)=>total + (ch==='2'?3:ch==='1'?1:0), 0);
+}
+function applyCellPattern(cell, value){
+  const n = Number(value) === 2 ? 2 : Number(value) === 1 ? 1 : 0;
+  cell.classList.add(patternToClass(n));
+  cell.dataset.state = String(n);
+  cell.style.background = n === 2 ? 'var(--good)' : n === 1 ? 'var(--warn)' : 'var(--bad)';
+  cell.style.borderColor = n === 2 ? 'var(--good)' : n === 1 ? 'var(--warn)' : 'var(--bad)';
+  cell.style.color = 'white';
+}
+function makeReversePatternSet(answer, allowedWords, length, count, seedString){
+  const solved = '2'.repeat(length);
+  const groups = new Map();
+  for(const word of allowedWords){
+    if(word.length !== length || word === answer) continue;
+    const pattern = scoreGuess(word, answer).join('');
+    if(pattern === solved) continue;
+    if(!groups.has(pattern)) groups.set(pattern, []);
+    groups.get(pattern).push(word);
+  }
+  let entries = [...groups.entries()].map(([pattern, words])=>({pattern, words, strength:patternStrength(pattern)}));
+  entries.sort((a,b)=>a.strength-b.strength || b.words.length-a.words.length || a.pattern.localeCompare(b.pattern));
+  if(!entries.length){
+    return {patterns:Array(count).fill('0'.repeat(length)).concat(solved), sources:Array(count).fill(null)};
+  }
+  const rand = seededRand(hashString(seedString || `${answer}|reverse`));
+  const picked=[];
+  const used=new Set();
+  for(let i=0;i<count;i++){
+    const low = entries.length === 1 ? 0 : Math.floor((i / count) * entries.length);
+    const high = entries.length === 1 ? 0 : Math.min(entries.length - 1, Math.floor(((i + 1) / count) * entries.length));
+    const window = entries.slice(low, high + 1).filter(e=>!used.has(e.pattern));
+    const fallback = entries.filter(e=>!used.has(e.pattern));
+    const choices = window.length ? window : fallback.length ? fallback : entries;
+    const choice = choices[Math.floor(rand()*choices.length)] || entries[0];
+    picked.push(choice);
+    used.add(choice.pattern);
+  }
+  picked.sort((a,b)=>a.strength-b.strength || a.pattern.localeCompare(b.pattern));
+  return {patterns:picked.map(e=>e.pattern).concat(solved), sources:picked.map(e=>e.words[Math.floor(rand()*e.words.length)] || e.words[0] || null)};
+}
+function ensureReversePuzzle(g){
+  if(!g || g.modeId !== 'reverse') return;
+  const answer = g.answers?.[0];
+  if(!answer) return;
+  const neededRows = Math.max(1, (g.guessLimit || 6) - 1);
+  let patterns = Array.isArray(g.reversePatterns) ? g.reversePatterns.map(p=>normalizePattern(p, g.length)) : [];
+  const solved = '2'.repeat(g.length);
+  const invalid = patterns.length < g.guessLimit || patterns.slice(0, neededRows).every(p=>!/[12]/.test(p));
+  if(invalid){
+    const generated = makeReversePatternSet(answer, g.allowedWords || g.answerWords || [], g.length, neededRows, `${g.id || ''}|${answer}|reversePatterns`);
+    patterns = generated.patterns;
+    g.reverseSolutions = generated.sources;
+  }
+  patterns = patterns.slice(0, neededRows).concat(solved);
+  g.reversePatterns = patterns;
+  if(!Array.isArray(g.reverseGuesses) || g.reverseGuesses.length !== g.guessLimit){
+    const old = Array.isArray(g.reverseGuesses) ? g.reverseGuesses : [];
+    g.reverseGuesses = Array(g.guessLimit).fill(null);
+    old.forEach((word,i)=>{ if(i < g.guessLimit) g.reverseGuesses[i]=word; });
+  }
+  g.reverseGuesses[g.guessLimit-1] = answer;
+  if(!Number.isInteger(g.reverseIndex)){
+    let idx = g.guessLimit - 2;
+    while(idx >= 0 && g.reverseGuesses[idx]) idx--;
+    g.reverseIndex = idx;
+  }
+  g.targetPattern = g.reverseIndex >= 0 ? g.reversePatterns[g.reverseIndex] : null;
+}
+
+function setScreen(name){
+  STATE.screen=name;
+  for(const [key, el] of Object.entries({home:els.home, setup:els.setup, game:els.game, stats:els.stats, settings:els.settings})){el.classList.toggle('active', key===name);}
+  els.backBtn.style.visibility = name === 'home' ? 'hidden' : 'visible';
+  if(name==='home'){els.topTitle.textContent='Word Grid'; els.topSubtitle.textContent='Pick a mode'; renderHome();}
+  if(name==='stats'){els.topTitle.textContent='Stats'; els.topSubtitle.textContent='Separate tracking for every setup'; renderStats();}
+  if(name==='settings'){els.topTitle.textContent='Settings'; els.topSubtitle.textContent=`v${VERSION}`; renderSettings();}
+}
+function goBack(){
+  if(STATE.screen === 'game' && STATE.game && STATE.game.status === 'playing'){saveCurrentGame(); setScreen('home'); return;}
+  if(STATE.screen !== 'home') setScreen('home');
+}
+function toast(msg){
+  els.toast.textContent = msg;
+  els.toast.classList.add('show');
+  clearTimeout(toast.t);
+  toast.t=setTimeout(()=>els.toast.classList.remove('show'),2200);
+}
+function showModal(title, body, actions=[]){
+  els.modalTitle.textContent=title;
+  els.modalBody.innerHTML=body;
+  els.modalActions.innerHTML='';
+  for(const action of actions){
+    const btn=document.createElement('button');
+    btn.className=action.kind==='danger'?'dangerBtn':action.kind==='secondary'?'secondaryBtn':'primaryBtn';
+    btn.textContent=action.label;
+    btn.addEventListener('click',()=>{ if(action.close !== false) closeModal(); action.fn?.(); });
+    els.modalActions.appendChild(btn);
+  }
+  if(!actions.length){
+    const btn=document.createElement('button'); btn.className='primaryBtn'; btn.textContent='Close'; btn.addEventListener('click',closeModal); els.modalActions.appendChild(btn);
+  }
+  els.modalShade.classList.add('show');
+}
+function closeModal(){els.modalShade.classList.remove('show');}
+
+function renderHome(){
+  els.modeTiles.innerHTML='';
+  const current = safeJsonParse(localStorage.getItem(STORAGE.current), null);
+  els.continueSlot.innerHTML='';
+  if(current && current.status === 'playing'){
+    const btn=document.createElement('button');
+    btn.className='tile big';
+    btn.innerHTML=`<span class="emoji">▶️</span><span><strong>Continue Current Game</strong><span>${current.label || 'Saved puzzle'} · ${current.guesses?.length || 0}/${current.guessLimit} guesses</span></span>`;
+    btn.addEventListener('click',()=>{STATE.game=current; STATE.buffer=''; renderGame(); setScreen('game');});
+    els.continueSlot.appendChild(btn);
+  }
+  for(const [id, mode] of Object.entries(MODES)){
+    const btn=document.createElement('button');
+    btn.className='tile';
+    btn.innerHTML=`<span class="emoji">${mode.emoji}</span><strong>${mode.name}</strong><span>${mode.desc}</span>`;
+    btn.addEventListener('click',()=>openSetup(id));
+    els.modeTiles.appendChild(btn);
+  }
+  const statsBtn=document.createElement('button'); statsBtn.className='tile'; statsBtn.innerHTML=`<span class="emoji">📊</span><strong>Stats</strong><span>Streaks, wins, and guess distributions.</span>`; statsBtn.addEventListener('click',()=>setScreen('stats')); els.modeTiles.appendChild(statsBtn);
+  const settingsBtn=document.createElement('button'); settingsBtn.className='tile'; settingsBtn.innerHTML=`<span class="emoji">⚙️</span><strong>Settings</strong><span>Theme, data, and app info.</span>`; settingsBtn.addEventListener('click',()=>setScreen('settings')); els.modeTiles.appendChild(settingsBtn);
+}
+function openSetup(modeId){
+  const mode=MODES[modeId];
+  const defaultLength = modeId === 'pokemon' ? 5 : 5;
+  STATE.setup = {modeId, daily:true, boards: modeId==='multi'?4:1, length:defaultLength, hard:false};
+  els.topTitle.textContent=mode.name; els.topSubtitle.textContent='Choose your puzzle';
+  renderSetup(); setScreen('setup');
+}
+function renderSetup(){
+  const setup=STATE.setup; const mode=MODES[setup.modeId];
+  els.setupTitle.textContent=mode.name;
+  els.setupDesc.textContent=mode.desc;
+  els.dailyChoices.innerHTML='';
+  for(const choice of [{value:true,label:'Daily',sub:'One per mode'}, {value:false,label:'Unlimited',sub:'Random puzzles'}]){
+    const btn=document.createElement('button'); btn.className='choice'+(setup.daily===choice.value?' active':''); btn.innerHTML=`${choice.label}<small>${choice.sub}</small>`; btn.addEventListener('click',()=>{setup.daily=choice.value; renderSetup();}); els.dailyChoices.appendChild(btn);
+  }
+  els.boardSection.classList.toggle('hidden', setup.modeId !== 'multi');
+  els.boardChoices.innerHTML='';
+  for(const b of [2,4,8,16,32,64]){
+    const btn=document.createElement('button'); btn.className='choice'+(setup.boards===b?' active':''); btn.innerHTML=`${b}<small>${MULTI_LIMITS[b]} guesses</small>`; btn.addEventListener('click',()=>{setup.boards=b; renderSetup();}); els.boardChoices.appendChild(btn);
+  }
+  els.lengthChoices.innerHTML='';
+  const lengths = setup.modeId === 'pokemon' ? Object.keys(pokemonByLength).map(Number).sort((a,b)=>a-b) : [4,5,6];
+  for(const len of lengths){
+    const bank = setup.modeId === 'pokemon' ? pokemonByLength[len] : standardAnswers[len];
+    const btn=document.createElement('button'); btn.className='choice'+(setup.length===len?' active':''); btn.innerHTML=`${len}<small>${bank?.length || 0} answers</small>`; btn.disabled=!bank?.length; btn.addEventListener('click',()=>{setup.length=len; renderSetup();}); els.lengthChoices.appendChild(btn);
+  }
+  els.hardSection.classList.toggle('hidden', setup.modeId === 'reverse');
+  els.hardSwitch.classList.toggle('on', setup.hard);
+  const limit = setup.modeId === 'multi' ? MULTI_LIMITS[setup.boards] : MULTI_LIMITS[1];
+  const bankLabel = setup.modeId === 'pokemon' ? `${pokemonByLength[setup.length]?.length || 0} Pokémon answers · ${pokemonAllowedForLength(setup.length).length} allowed guesses` : `${standardAnswers[setup.length]?.length || 0} answer words`;
+  els.startBtn.textContent = `Start ${setup.daily ? 'Daily' : 'Unlimited'} ${mode.name}`;
+  els.setupFinePrint.textContent = `${setup.length} letters · ${setup.modeId==='multi' ? `${setup.boards} boards · ` : ''}${limit} guesses · ${bankLabel}`;
+}
+
+function buildGame(){
+  const setup={...STATE.setup};
+  const date=todayKey();
+  const mode=MODES[setup.modeId];
+  const boards=setup.modeId==='multi'?setup.boards:1;
+  const guessLimit=setup.modeId==='multi'?MULTI_LIMITS[boards]:MULTI_LIMITS[1];
+  const isPokemon=setup.modeId==='pokemon';
+  const entries = isPokemon ? pokemonByLength[setup.length] : null;
+  const answerWords = isPokemon ? entries.map(x=>x.word) : standardAnswers[setup.length];
+  const allowedWords = isPokemon ? pokemonAllowedForLength(setup.length) : standardAllowed[setup.length];
+  const seed = `${setup.modeId}|${setup.daily?'daily':'unlimited'}|${date}|${boards}|${setup.length}|${setup.hard}`;
+  let answers=[];
+  if(setup.modeId === 'evil'){
+    answers=[];
+  } else if(setup.daily){
+    answers=pickMany(answerWords, boards, seed);
+  } else {
+    answers=randomPickMany(answerWords, boards);
+  }
+  const displays=answers.map(w => displayForWord(w, isPokemon));
+  let targetPattern=null, targetWord=null, reversePatterns=null, reverseSolutions=null, reverseGuesses=null, reverseIndex=null, reverseAttempts=0;
+  if(setup.modeId === 'reverse'){
+    const reverseSeed = setup.daily ? seed+'|reverseRows' : `${seed}|${Math.random()}`;
+    const generated = makeReversePatternSet(answers[0], allowedWords, setup.length, Math.max(1, guessLimit-1), reverseSeed);
+    reversePatterns = generated.patterns;
+    reverseSolutions = generated.sources;
+    reverseGuesses = Array(guessLimit).fill(null);
+    reverseGuesses[guessLimit-1] = answers[0];
+    reverseIndex = guessLimit-2;
+    targetWord = null;
+    targetPattern = reversePatterns[reverseIndex] || null;
+  }
+  const label = `${mode.name} · ${setup.daily?'Daily':'Unlimited'} · ${setup.length}L${boards>1?` · ${boards} boards`:''}`;
+  return {
+    version:VERSION,
+    modeId:setup.modeId,
+    type:mode.type,
+    daily:setup.daily,
+    date,
+    boards,
+    length:setup.length,
+    guessLimit,
+    hard:setup.modeId === 'reverse' ? false : setup.hard,
+    dictionary:isPokemon?'pokemon':'standard',
+    answers,
+    displays,
+    answerWords,
+    allowedWords,
+    possibleAnswers:setup.modeId==='evil' ? [...answerWords] : null,
+    targetPattern,
+    targetWord,
+    reversePatterns,
+    reverseSolutions,
+    reverseGuesses,
+    reverseIndex,
+    reverseAttempts,
+    guesses:[],
+    results:[],
+    solvedAt:Array(boards).fill(null),
+    status:'playing',
+    won:false,
+    label,
+    id:`${setup.modeId}|${setup.daily?'daily':'unlimited'}|${date}|${boards}|${setup.length}|${setup.hard?'hard':'normal'}`
+  };
+}
+function displayForWord(word, isPokemon){
+  if(!isPokemon) return word.toUpperCase();
+  const entry=pokemonEntries.find(x=>x.word===word);
+  return entry ? entry.name : word.toUpperCase();
+}
+function startGame(){
+  const game=buildGame();
+  STATE.game=game; STATE.buffer='';
+  renderGame(); setScreen('game'); saveCurrentGame();
+}
+function saveCurrentGame(){if(STATE.game) localStorage.setItem(STORAGE.current, JSON.stringify(STATE.game));}
+
+function renderGame(){
+  const g=STATE.game; if(!g) return;
+  ensureReversePuzzle(g);
+  els.topTitle.textContent=MODES[g.modeId].name; els.topSubtitle.textContent=g.daily?`Daily ${g.date}`:'Unlimited';
+  renderGameMeta(); renderTargetPattern(); renderBoards(); renderPokemonPicker(); renderKeyboard(); updateBuffer();
+}
+function renderGameMeta(){
+  const g=STATE.game;
+  els.gameMeta.innerHTML='';
+  const progressPill = g.modeId === 'reverse' ? `${g.guesses.length} attempts` : `${g.guesses.length}/${g.guessLimit} guesses`;
+  const pills=[`${g.length} letters`, progressPill, g.daily?'Daily':'Unlimited'];
+  if(g.boards>1) pills.push(`${g.boards} boards`);
+  if(g.hard) pills.push('Hard Mode');
+  if(g.modeId==='evil') pills.push(`${g.possibleAnswers.length} possible`);
+  if(g.modeId==='reverse'){
+    const remaining = Math.max(0, (g.reverseIndex ?? g.guessLimit-2) + 1);
+    pills.push(`${Math.max(0, g.guessLimit-1-remaining)}/${g.guessLimit-1} rows filled`);
+    pills.push(remaining ? `Fill row ${remaining}` : 'Complete');
+  }
+  const solved=g.solvedAt.filter(Boolean).length;
+  if(g.boards>1) pills.push(`${solved}/${g.boards} solved`);
+  for(const text of pills){const div=document.createElement('div'); div.className='metaPill'; div.textContent=text; els.gameMeta.appendChild(div);}
+}
+function renderTargetPattern(){
+  const g=STATE.game;
+  els.targetPattern.classList.toggle('hidden', g.modeId !== 'reverse');
+  if(g.modeId !== 'reverse') return;
+  const remaining = Math.max(0, (g.reverseIndex ?? g.guessLimit-2) + 1);
+  const prompt = g.status === 'playing' && remaining ? `Find a word for row ${remaining}` : 'Reverse puzzle complete';
+  els.targetPattern.innerHTML=`<div class="reverseHint"><span>Answer:</span><strong>${g.displays[0]}</strong><span>· ${prompt}</span></div>`;
+}
+function renderBoards(){
+  const g=STATE.game;
+  const cols = g.boards === 1 ? 'single' : g.boards >= 16 ? 'cols4' : g.boards >= 4 ? 'cols2' : '';
+  const cellSize = cellSizeFor(g);
+  els.boards.className=`boards ${cols}`;
+  els.boards.innerHTML='';
+  if(g.modeId === 'reverse'){
+    renderReverseBoard(g, cellSize);
+    return;
+  }
+  for(let b=0;b<g.boards;b++){
+    const card=document.createElement('div');
+    const solved=!!g.solvedAt[b];
+    const failed=g.status==='lost' && !solved;
+    card.className=`boardCard ${g.boards===1?'singleBoard':''} ${solved?'solved':''} ${failed?'failed':''}`;
+    const boardName = g.boards===1 ? 'Board' : `Board ${b+1}`;
+    const reveal = (g.status!=='playing' || solved) && g.answers[b] ? `<span class="answerReveal">${g.displays[b]}</span>` : '';
+    card.innerHTML=`<div class="boardHead"><span>${boardName}</span>${reveal || `<span>${solved?`Solved in ${g.solvedAt[b]}`:''}</span>`}</div>`;
+    const grid=document.createElement('div');
+    grid.className='grid';
+    grid.style.setProperty('--cell', cellSize);
+    for(let r=0;r<g.guessLimit;r++){
+      const row=document.createElement('div');
+      row.className='guessRow';
+      row.style.display='flex';
+      row.style.flexDirection='row';
+      row.style.flexWrap='nowrap';
+      row.style.justifyContent='center';
+      row.style.alignItems='center';
+      row.style.gap=(g.boards>=16 || window.innerWidth<=360)?'4px':'5px';
+      row.style.setProperty('--cell-size', cellSize);
+      const word=g.guesses[r] || (r===g.guesses.length && g.status==='playing' ? STATE.buffer : '');
+      const result = g.results[r]?.[b];
+      for(let i=0;i<g.length;i++){
+        const cell=document.createElement('div');
+        cell.className='cell';
+        cell.style.setProperty('--cell-size', cellSize);
+        cell.style.width=cellSize;
+        cell.style.height=cellSize;
+        cell.style.flex=`0 0 ${cellSize}`;
+        const ch=word[i] || '';
+        cell.textContent=ch;
+        if(ch) cell.classList.add('filled');
+        if(result && typeof result[i] !== 'undefined') cell.classList.add(patternToClass(result[i]));
+        row.appendChild(cell);
+      }
+      grid.appendChild(row);
+    }
+    card.appendChild(grid);
+    els.boards.appendChild(card);
+  }
+}
+function renderReverseBoard(g, cellSize){
+  ensureReversePuzzle(g);
+  const card=document.createElement('div');
+  card.className='boardCard singleBoard';
+  const grid=document.createElement('div');
+  grid.className='grid reverseGrid';
+  grid.style.setProperty('--cell', cellSize);
+  const patterns = Array.isArray(g.reversePatterns) ? g.reversePatterns : [];
+  const guesses = Array.isArray(g.reverseGuesses) ? g.reverseGuesses : Array(g.guessLimit).fill(null);
+  const activeIndex = g.status === 'playing' ? (g.reverseIndex ?? g.guessLimit-2) : -1;
+  for(let r=0;r<g.guessLimit;r++){
+    const row=document.createElement('div');
+    row.className='guessRow reverseRow';
+    if(r === activeIndex) row.classList.add('activeReverse');
+    if(r > activeIndex && r < g.guessLimit-1) row.classList.add('lockedReverse');
+    row.style.display='flex';
+    row.style.flexDirection='row';
+    row.style.flexWrap='nowrap';
+    row.style.justifyContent='center';
+    row.style.alignItems='center';
+    row.style.gap=(window.innerWidth<=360)?'4px':'5px';
+    row.style.setProperty('--cell-size', cellSize);
+    const pattern = normalizePattern(patterns[r] || (r === g.guessLimit-1 ? '2'.repeat(g.length) : '0'.repeat(g.length)), g.length);
+    const answerRow = r === g.guessLimit - 1;
+    const word = answerRow ? g.answers[0] : (guesses[r] || (r === activeIndex ? STATE.buffer : ''));
+    for(let i=0;i<g.length;i++){
+      const cell=document.createElement('div');
+      cell.className='cell target reverseCell';
+      cell.style.setProperty('--cell-size', cellSize);
+      cell.style.width=cellSize;
+      cell.style.height=cellSize;
+      cell.style.flex=`0 0 ${cellSize}`;
+      applyCellPattern(cell, Number(pattern[i] ?? 0));
+      const ch=word?.[i] || '';
+      cell.textContent=ch;
+      cell.setAttribute('aria-label', `${answerRow ? 'answer' : 'clue'} row ${r+1}, tile ${i+1}, ${patternToClass(Number(pattern[i] ?? 0))}${ch ? `, ${ch.toUpperCase()}` : ''}`);
+      if(ch) cell.classList.add('filled');
+      row.appendChild(cell);
+    }
+    grid.appendChild(row);
+  }
+  card.appendChild(grid);
+  els.boards.appendChild(card);
+}
+function cellSizeFor(g){
+  const viewportWidth = Math.min(window.innerWidth || 390, 620);
+  const gap = (g.boards>=16 || viewportWidth<=360) ? 4 : 5;
+  const horizontalRoom = (extraPadding=48) => Math.floor((viewportWidth - extraPadding - gap*(g.length-1)) / g.length);
+  if(g.boards===1){
+    const cap = g.length<=5 ? 58 : g.length===6 ? 50 : 42;
+    return `${Math.max(28, Math.min(cap, horizontalRoom(48)))}px`;
+  }
+  if(g.boards>=64) return `${Math.max(16, Math.min(20, horizontalRoom(24)))}px`;
+  if(g.boards>=32) return `${Math.max(18, Math.min(22, horizontalRoom(24)))}px`;
+  if(g.boards>=16) return `${Math.max(20, Math.min(25, horizontalRoom(24)))}px`;
+  if(g.boards>=8) return `${Math.max(22, Math.min(30, horizontalRoom(34)))}px`;
+  if(g.boards>=4) return `${Math.max(24, Math.min(36, horizontalRoom(36)))}px`;
+  return `${Math.max(28, Math.min(44, horizontalRoom(42)))}px`;
+}
+
+function pokemonChoicesForGame(g){
+  if(!g || g.dictionary !== 'pokemon') return [];
+  return (pokemonByLength[g.length] || []).slice().sort((a,b)=>a.name.localeCompare(b.name));
+}
+function pokemonAllowedRegularCount(g){
+  if(!g || g.dictionary !== 'pokemon') return 0;
+  return (standardAllowed[g.length] || []).length;
+}
+function renderPokemonPicker(){
+  const g=STATE.game;
+  if(!els.pokemonBankBar) return;
+  const choices=pokemonChoicesForGame(g);
+  const hidden=!choices.length || g.status !== 'playing';
+  els.pokemonBankBar.classList.toggle('hidden', hidden);
+  if(hidden){els.pokemonBankBar.innerHTML=''; return;}
+  const selected=choices.find(entry=>entry.word===STATE.buffer.toLowerCase());
+  const regularCount=pokemonAllowedRegularCount(g);
+  const detail = regularCount ? `${choices.length} names · ${regularCount.toLocaleString()} regular guesses allowed` : `${choices.length} names`;
+  els.pokemonBankBar.innerHTML=`<button class="pokemonBankBtn" type="button"><span><strong>Pokémon Bank</strong><small>${detail}</small></span><span class="bankAction">${selected ? selected.name : 'Browse'}</span></button>`;
+  els.pokemonBankBar.querySelector('button').addEventListener('click',openPokemonBankModal);
+}
+function openPokemonBankModal(){
+  const g=STATE.game;
+  const choices=pokemonChoicesForGame(g);
+  if(!g || !choices.length) return;
+  const regularCount=pokemonAllowedRegularCount(g);
+  const regularText = regularCount ? `Regular ${g.length}-letter words are also accepted as guesses, so you can narrow down the Pokémon without already knowing every name.` : `For this word length, v1.0.9 only has Pokémon names in the guess bank.`;
+  showModal('Pokémon Bank', `<div class="bankFine">Tap a ${g.length}-letter Pokémon to fill your guess. You still press <strong>Enter</strong> to submit. ${regularText}</div><input class="bankSearch" id="pokemonBankSearch" autocomplete="off" placeholder="Search ${choices.length} Pokémon…"><div class="bankModalCount" id="pokemonBankCount"></div><div class="bankModalGrid" id="pokemonBankGrid"></div>`, [{label:'Close', kind:'secondary'}]);
+  const input=document.getElementById('pokemonBankSearch');
+  const grid=document.getElementById('pokemonBankGrid');
+  const count=document.getElementById('pokemonBankCount');
+  const draw=()=>{
+    const q=normalizeWord(input.value);
+    const filtered=choices.filter(entry=>!q || normalizeWord(entry.name).includes(q) || entry.word.includes(q));
+    count.textContent=`${filtered.length} of ${choices.length} names`;
+    grid.innerHTML='';
+    filtered.forEach(entry=>{
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='bankChoice'+(entry.word===STATE.buffer.toLowerCase()?' active':'');
+      btn.textContent=entry.name;
+      btn.title=entry.name;
+      btn.addEventListener('click',()=>{
+        STATE.buffer=entry.word;
+        closeModal();
+        updateBuffer();
+        renderPokemonPicker();
+      });
+      grid.appendChild(btn);
+    });
+    if(!filtered.length){grid.innerHTML='<div class="emptyState" style="grid-column:1/-1;padding:16px">No matching Pokémon.</div>';}
+  };
+  input.addEventListener('input',draw);
+  draw();
+  setTimeout(()=>input.focus({preventScroll:true}),50);
+}
+function syncPokemonPickerActive(){
+  renderPokemonPicker();
+}
+function renderKeyboard(){
+  const ranks=keyboardRanks();
+  const guessedLetters=new Set((STATE.game?.guesses || []).join('').toLowerCase().split('').filter(Boolean));
+  els.keyboard.innerHTML='';
+  LETTER_ROWS.forEach((letters,rowIdx)=>{
+    const row=document.createElement('div'); row.className='kbdRow';
+    if(rowIdx===2){const enter=makeKey('ENTER','Enter', 'wide'); row.appendChild(enter);}
+    [...letters].forEach(l=>{
+      const key=l.toLowerCase();
+      const state=guessedLetters.has(key) ? (ranks[key] || '') : '';
+      row.appendChild(makeKey(l,l,state));
+    });
+    if(rowIdx===2){const back=makeKey('⌫','Backspace','wide'); row.appendChild(back);}
+    els.keyboard.appendChild(row);
+  });
+}
+function makeKey(label,value,extra=''){
+  const btn=document.createElement('button'); btn.className=`key ${extra||''}`.trim(); btn.textContent=label; btn.addEventListener('click',()=>handleKey(value)); return btn;
+}
+function keyboardRanks(){
+  const g=STATE.game;
+  const best={};
+  const cls=['absent','present','correct'];
+  if(!g) return best;
+  (g.guesses || []).forEach((guess,ri)=>{
+    const normalized=String(guess || '').toLowerCase();
+    for(let b=0;b<Math.max(1,g.boards || 1);b++){
+      const res=g.results?.[ri]?.[b];
+      if(!res) continue;
+      [...normalized].forEach((letter,i)=>{
+        const val=Number(res[i]);
+        if(!Number.isFinite(val) || val < 0 || val > 2) return;
+        best[letter]=Math.max(best[letter] ?? -1, val);
+      });
+    }
+  });
+  return Object.fromEntries(Object.entries(best).filter(([,val])=>val>=0).map(([letter,val])=>[letter,cls[val]]));
+}
+function updateBuffer(){
+  const g=STATE.game;
+  if(g.status !== 'playing'){
+    els.buffer.textContent = g.won ? 'Solved' : 'Game over';
+  } else if(g.modeId === 'reverse'){
+    const row = Math.max(0, (g.reverseIndex ?? g.guessLimit-2) + 1);
+    els.buffer.textContent = `Row ${row}: ${STATE.buffer.toUpperCase().padEnd(g.length,'·')}`;
+  } else {
+    els.buffer.textContent = `${STATE.buffer.toUpperCase().padEnd(g.length,'·')} `;
+  }
+  renderBoards();
+  syncPokemonPickerActive();
+}
+function handleKey(key){
+  const g=STATE.game; if(!g || g.status!=='playing') return;
+  if(key==='Backspace'){STATE.buffer=STATE.buffer.slice(0,-1); updateBuffer(); return;}
+  if(key==='Enter'){submitGuess(); return;}
+  if(/^[A-Z]$/.test(key) && STATE.buffer.length<g.length){STATE.buffer += key.toLowerCase(); updateBuffer();}
+}
+function submitGuess(){
+  const g=STATE.game; const guess=STATE.buffer.toLowerCase();
+  if(guess.length !== g.length){toast(`Need ${g.length} letters.`); return;}
+  if(!g.allowedWords.includes(guess)){toast(g.dictionary==='pokemon'?'Not in the Pokémon/word guess bank.':'Not in the word bank.'); return;}
+  const hardMsg = g.hard ? hardModeMessage(g, guess) : '';
+  if(hardMsg){toast(hardMsg); return;}
+  let resultRow=[];
+  if(g.modeId === 'evil'){
+    const choice=chooseEvilPartition(g.possibleAnswers, guess);
+    g.possibleAnswers=choice.words;
+    g.answers=[choice.words[0] || guess];
+    g.displays=[displayForWord(g.answers[0], false)];
+    resultRow=[choice.pattern.split('').map(Number)];
+  } else {
+    resultRow=g.answers.map(answer=>scoreGuess(guess, answer));
+  }
+  if(g.modeId==='reverse'){
+    ensureReversePuzzle(g);
+    g.reverseAttempts = (g.reverseAttempts || 0) + 1;
+    const activeIndex = g.reverseIndex ?? g.guessLimit-2;
+    const neededPattern = normalizePattern(g.reversePatterns?.[activeIndex] || g.targetPattern, g.length);
+    const actualPattern = normalizePattern(resultRow[0].join(''), g.length);
+    g.guesses.push(guess);
+    g.results.push(resultRow);
+    STATE.buffer='';
+    if(actualPattern !== neededPattern){
+      toast(`That word does not produce row ${activeIndex + 1}'s color pattern.`);
+      afterGuessRender();
+      return;
+    }
+    if(!Array.isArray(g.reverseGuesses)) g.reverseGuesses = Array(g.guessLimit).fill(null);
+    g.reverseGuesses[activeIndex] = guess;
+    g.reverseIndex = activeIndex - 1;
+    g.targetPattern = g.reverseIndex >= 0 ? g.reversePatterns[g.reverseIndex] : null;
+    if(g.reverseIndex < 0){finishGame(true);} else {afterGuessRender();}
+    return;
+  }
+  g.guesses.push(guess);
+  g.results.push(resultRow);
+  STATE.buffer='';
+  for(let b=0;b<g.boards;b++){
+    if(!g.solvedAt[b] && resultRow[b]?.every(n=>n===2)) g.solvedAt[b]=g.guesses.length;
+  }
+  const allSolved = g.solvedAt.every(Boolean);
+  if(allSolved){finishGame(true); return;}
+  if(g.guesses.length >= g.guessLimit){finishGame(false); return;}
+  afterGuessRender();
+}
+function afterGuessRender(){saveCurrentGame(); renderGameMeta(); renderBoards(); renderPokemonPicker(); renderKeyboard(); updateBuffer();}
+function scoreGuess(guess, answer){
+  const res=Array(guess.length).fill(0);
+  const counts={};
+  for(let i=0;i<guess.length;i++){
+    if(guess[i]===answer[i]) res[i]=2; else counts[answer[i]]=(counts[answer[i]]||0)+1;
+  }
+  for(let i=0;i<guess.length;i++){
+    if(res[i]===2) continue;
+    if(counts[guess[i]]>0){res[i]=1; counts[guess[i]]--;}
+  }
+  return res;
+}
+function chooseEvilPartition(candidates, guess){
+  const groups=new Map();
+  for(const answer of candidates){
+    const pat=scoreGuess(guess, answer).join('');
+    if(!groups.has(pat)) groups.set(pat, []);
+    groups.get(pat).push(answer);
+  }
+  const solved='2'.repeat(guess.length);
+  const entries=[...groups.entries()].map(([pattern,words])=>({pattern,words, solved:pattern===solved, greens:[...pattern].filter(x=>x==='2').length, yellows:[...pattern].filter(x=>x==='1').length}));
+  entries.sort((a,b)=> b.words.length-a.words.length || Number(a.solved)-Number(b.solved) || a.greens-b.greens || a.yellows-b.yellows || a.pattern.localeCompare(b.pattern));
+  return entries[0] || {pattern:solved, words:[guess]};
+}
+function hardModeMessage(g, guess){
+  if(g.guesses.length===0) return '';
+  const constraints=combinedConstraints(g);
+  for(const [pos, letter] of Object.entries(constraints.greens)){
+    if(guess[Number(pos)] !== letter) return `${letter.toUpperCase()} must stay in position ${Number(pos)+1}.`;
+  }
+  for(const [letter, count] of Object.entries(constraints.required)){
+    const have=[...guess].filter(ch=>ch===letter).length;
+    if(have<count) return `Guess must include ${letter.toUpperCase()}${count>1?` ×${count}`:''}.`;
+  }
+  return '';
+}
+function constraintsForBoard(g,b){
+  const greens={}; const required={};
+  g.guesses.forEach((word,ri)=>{
+    const res=g.results[ri]?.[b]; if(!res) return;
+    const counts={};
+    res.forEach((v,i)=>{if(v===2){greens[i]=word[i]; counts[word[i]]=(counts[word[i]]||0)+1;} else if(v===1){counts[word[i]]=(counts[word[i]]||0)+1;}});
+    for(const [letter,count] of Object.entries(counts)) required[letter]=Math.max(required[letter]||0,count);
+  });
+  return {greens,required};
+}
+function combinedConstraints(g){
+  if(g.boards===1) return constraintsForBoard(g,0);
+  const greenOptions={}; const required={};
+  for(let b=0;b<g.boards;b++){
+    if(g.solvedAt[b]) continue;
+    const c=constraintsForBoard(g,b);
+    for(const [pos,letter] of Object.entries(c.greens)){ if(!greenOptions[pos]) greenOptions[pos]=new Set(); greenOptions[pos].add(letter); }
+    for(const [letter,count] of Object.entries(c.required)) required[letter]=Math.max(required[letter]||0,count);
+  }
+  const greens={};
+  for(const [pos,set] of Object.entries(greenOptions)){ if(set.size===1) greens[pos]=[...set][0]; }
+  const totalReq=Object.values(required).reduce((a,b)=>a+b,0);
+  return {greens, required: totalReq <= g.length ? required : {}};
+}
+function finishGame(won){
+  const g=STATE.game; g.status=won?'won':'lost'; g.won=won;
+  if(won){
+    for(let b=0;b<g.boards;b++) if(!g.solvedAt[b]) g.solvedAt[b]=g.guesses.length;
+  }
+  saveCurrentGame(); updateStats(g); renderGame(); showResultModal(g);
+}
+function statsKey(g){return `${g.modeId}|${g.daily?'daily':'unlimited'}|${g.boards}b|${g.length}l|${g.hard?'hard':'normal'}`;}
+function updateStats(g){
+  const completed=loadCompletedDaily();
+  if(g.daily && completed[g.id]) return;
+  const stats=loadStats(); const key=statsKey(g);
+  const s=stats[key] || {label:statsLabel(g), played:0,wins:0,losses:0,currentStreak:0,maxStreak:0,lastDailyWin:null,distribution:{}};
+  s.played++;
+  if(g.won){
+    s.wins++;
+    const guessCount=String(g.guesses.length); s.distribution[guessCount]=(s.distribution[guessCount]||0)+1;
+    if(g.daily){
+      if(s.lastDailyWin === yesterdayKey(g.date)) s.currentStreak++; else if(s.lastDailyWin !== g.date) s.currentStreak=1;
+      s.lastDailyWin=g.date;
+    } else s.currentStreak++;
+    s.maxStreak=Math.max(s.maxStreak,s.currentStreak);
+  } else {
+    s.losses++; s.currentStreak=0;
+  }
+  stats[key]=s; saveStats(stats);
+  if(g.daily){completed[g.id]={won:g.won, guesses:g.guesses.length, date:g.date}; saveCompletedDaily(completed);}
+}
+function statsLabel(g){
+  const mode=MODES[g.modeId].name;
+  return `${mode} · ${g.daily?'Daily':'Unlimited'} · ${g.length}L${g.boards>1?` · ${g.boards} boards`:''}${g.hard?' · Hard':''}`;
+}
+function showResultModal(g){
+  const title=g.won?'Solved!':'Not this time';
+  const answerList = g.modeId==='evil' ? displayForWord(g.answers[0], false) : g.displays.join(', ');
+  const extra = g.modeId==='reverse' ? `<p><strong>Answer:</strong> ${g.displays[0]}<br><strong>Rows filled:</strong> ${g.reverseGuesses?.filter((w,i)=>w && i < g.guessLimit-1).length || 0}/${g.guessLimit-1}</p>` : `<p><strong>Answer${g.boards>1?'s':''}:</strong> ${answerList}</p>`;
+  const body=`<p>${g.won ? `You finished in <strong>${g.guesses.length}</strong> submitted word${g.guesses.length===1?'':'s'}.` : `You used all <strong>${g.guessLimit}</strong> guesses.`}</p>${extra}<p><strong>Mode:</strong> ${statsLabel(g)}</p>`;
+  const replayIsUnlimited = g.daily;
+  const replayLabel = replayIsUnlimited ? 'Play Unlimited' : 'Play Again';
+  showModal(title, body, [
+    {label:replayLabel, fn:()=>{STATE.setup={modeId:g.modeId,daily:false,boards:g.boards,length:g.length,hard:g.hard}; startGame();}},
+    {label:'Home', kind:'secondary', fn:()=>setScreen('home')}
+  ]);
+}
+
+function renderStats(){
+  const stats=loadStats(); const entries=Object.entries(stats);
+  els.statsList.innerHTML='';
+  if(!entries.length){els.statsList.innerHTML='<div class="emptyState">No stats yet. Go wreck a puzzle.</div>'; return;}
+  entries.sort((a,b)=>a[1].label.localeCompare(b[1].label));
+  for(const [,s] of entries){
+    const winPct=s.played?Math.round((s.wins/s.played)*100):0;
+    const maxDist=Math.max(1,...Object.values(s.distribution));
+    const distRows=Object.entries(s.distribution).sort((a,b)=>Number(a[0])-Number(b[0])).map(([guess,count])=>`<div class="distRow"><strong>${guess}</strong><div class="distBar"><div class="distFill" style="width:${Math.max(6, count/maxDist*100)}%"></div></div><span>${count}</span></div>`).join('') || '<p class="miniNote">No wins yet.</p>';
+    const div=document.createElement('div'); div.className='statsCard';
+    div.innerHTML=`<div class="statsTitle">${s.label}</div><div class="statGrid"><div class="statBox"><strong>${s.played}</strong><span>Played</span></div><div class="statBox"><strong>${winPct}%</strong><span>Win</span></div><div class="statBox"><strong>${s.currentStreak}</strong><span>Streak</span></div><div class="statBox"><strong>${s.maxStreak}</strong><span>Best</span></div></div><div style="margin-top:12px">${distRows}</div>`;
+    els.statsList.appendChild(div);
+  }
+}
+function renderSettings(){
+  const settings=loadSettings();
+  els.themeSwitch.classList.toggle('on', settings.theme==='light');
+  const pCounts=Object.entries(pokemonByLength).sort((a,b)=>Number(a[0])-Number(b[0])).map(([len,list])=>`${len}L: ${list.length}`).join(' · ');
+  els.bankSummary.innerHTML=`Standard banks: ${standardAnswers[4].length} four-letter, ${standardAnswers[5].length} five-letter answers, ${standardAnswers[6].length} six-letter. Five-letter guesses include ${standardAllowed[5].length} accepted words.<br><br>Pokémon answer bank: ${pokemonEntries.length} names. ${pCounts}. Pokémon mode also accepts regular standard guesses for 4-, 5-, and 6-letter games when available.`;
+}
+function applySettings(){const settings=loadSettings(); document.documentElement.dataset.theme=settings.theme;}
+
+function clearStatsConfirm(){
+  showModal('Clear stats?', '<p>This permanently clears all local stats and streaks for Word Grid on this device.</p>', [
+    {label:'Clear Stats', kind:'danger', fn:()=>{localStorage.removeItem(STORAGE.stats); localStorage.removeItem(STORAGE.completedDaily); renderStats(); toast('Stats cleared.');}},
+    {label:'Cancel', kind:'secondary'}
+  ]);
+}
+
+els.backBtn.addEventListener('click',goBack);
+els.startBtn.addEventListener('click',startGame);
+els.hardToggle.addEventListener('click',()=>{STATE.setup.hard=!STATE.setup.hard; renderSetup();});
+els.modalClose.addEventListener('click',closeModal);
+els.modalShade.addEventListener('click',e=>{if(e.target===els.modalShade) closeModal();});
+els.clearStatsBtn.addEventListener('click',clearStatsConfirm);
+els.themeToggle.addEventListener('click',()=>{const s=loadSettings(); s.theme=s.theme==='light'?'dark':'light'; saveSettings(s); applySettings(); renderSettings();});
+els.clearCurrentBtn.addEventListener('click',()=>{localStorage.removeItem(STORAGE.current); toast('Current game cleared.');});
+window.addEventListener('keydown',e=>{
+  if(STATE.screen !== 'game') return;
+  if(els.modalShade.classList.contains('show')) return;
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+  if(e.key === 'Enter') {e.preventDefault(); handleKey('Enter');}
+  else if(e.key === 'Backspace') {e.preventDefault(); handleKey('Backspace');}
+  else if(/^[a-zA-Z]$/.test(e.key)) {handleKey(e.key.toUpperCase());}
+});
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+applySettings();
+renderHome();
+setScreen('home');
+</script>
+</body>
+</html>
