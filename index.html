@@ -115,7 +115,7 @@
     @keyframes pop{50%{transform:scale(1.08)}}@keyframes flip{50%{transform:rotateX(88deg) scale(.98)}}
     .targetPattern{margin:10px auto 4px;text-align:center}.targetPattern .label{font-size:.76rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.targetCells{display:flex;justify-content:center;gap:5px}.reverseHint{display:inline-flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 12px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:.8rem;color:var(--muted);font-weight:900}.reverseHint strong{color:var(--ink);letter-spacing:.08em}.guessRow.activeReverse .cell{box-shadow:0 0 0 2px var(--accent),0 8px 16px rgba(0,0,0,.18)}.guessRow.lockedReverse .cell{filter:saturate(.9) brightness(.9)}
     .keyboardWrap{padding:10px 7px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:rgba(12,16,34,.88);backdrop-filter:blur(14px)}[data-theme="light"] .keyboardWrap{background:rgba(238,243,255,.92)}
-    .buffer{min-height:26px;text-align:center;color:var(--muted);font-weight:900;font-size:.8rem;margin-bottom:6px}.kbdRow{display:flex;gap:5px;justify-content:center;margin-bottom:6px}.key{height:44px;min-width:0;flex:1;border-radius:10px;background:var(--bad);border:1px solid var(--line);font-weight:950;text-transform:uppercase;color:var(--ink);box-shadow:0 5px 10px rgba(0,0,0,.12);touch-action:manipulation}.key.wide{flex:1.55;font-size:.72rem}.key.correct{background:var(--good);color:white}.key.present{background:var(--warn);color:white}.key.absent{background:var(--panel-2);color:white}.key:active{transform:translateY(1px)}
+    .buffer{min-height:26px;text-align:center;color:var(--muted);font-weight:900;font-size:.8rem;margin-bottom:6px}.kbdRow{display:flex;gap:5px;justify-content:center;margin-bottom:6px}.key{height:44px;min-width:0;flex:1;border-radius:10px;background:var(--bad);border:1px solid var(--line);font-weight:950;text-transform:uppercase;color:var(--ink);box-shadow:0 5px 10px rgba(0,0,0,.12);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.key.wide{flex:1.55;font-size:.72rem}.key.correct{background:var(--good);color:white}.key.present{background:var(--warn);color:white}.key.absent{background:var(--panel-2);color:white}.key:active{transform:translateY(1px)}
 
     .pokemonBankBar{margin:0 0 8px}.pokemonBankBtn{width:100%;min-height:48px;border-radius:16px;border:1px solid rgba(124,199,255,.34);background:linear-gradient(135deg,rgba(124,199,255,.18),rgba(169,140,255,.11)),var(--panel-2);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;text-align:left;box-shadow:0 8px 18px rgba(0,0,0,.12)}.pokemonBankBtn strong{display:block;font-size:.88rem;font-weight:950}.pokemonBankBtn small{display:block;font-size:.68rem;color:var(--muted);font-weight:800;margin-top:1px;line-height:1.15}.pokemonBankBtn .bankAction{font-size:.76rem;font-weight:950;color:white;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:999px;padding:7px 10px;white-space:nowrap}.bankSearch{width:100%;height:46px;border-radius:16px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:0 13px;font-weight:850;outline:none;margin-bottom:10px}.bankSearch:focus{border-color:rgba(124,199,255,.7);box-shadow:0 0 0 3px rgba(124,199,255,.12)}.bankFine{font-size:.84rem;color:var(--muted);line-height:1.35;margin-bottom:12px}.bankModalCount{font-size:.75rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}.bankModalGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.bankChoice{min-height:42px;border-radius:13px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-weight:900;font-size:.86rem;padding:8px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bankChoice.active{background:linear-gradient(135deg,rgba(124,199,255,.38),rgba(169,140,255,.26));border-color:rgba(124,199,255,.72);box-shadow:0 0 0 2px rgba(124,199,255,.08) inset}.bankChoice:active,.pokemonBankBtn:active{transform:translateY(1px)}
     .toast{position:absolute;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);max-width:calc(100% - 30px);padding:12px 14px;border-radius:16px;background:#10162e;color:#fff;border:1px solid rgba(255,255,255,.16);box-shadow:var(--shadow);opacity:0;pointer-events:none;z-index:40;font-weight:850;text-align:center;line-height:1.25;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -137,11 +137,11 @@
     <div class="scroll">
       <div class="hero">
         <h1>Word Grid</h1>
-        <button class="versionPill" id="versionPill" type="button" aria-label="App update and version"><span id="versionLabel">v13</span><span class="updateDot" aria-hidden="true"></span></button>
+        <button class="versionPill" id="versionPill" type="button" aria-label="App update and version"><span id="versionLabel">v14</span><span class="updateDot" aria-hidden="true"></span></button>
       </div>
       <div class="updatePanel" id="homeUpdatePanel" aria-live="polite">
         <h3>App update</h3>
-        <p id="updateStatusText">Word Grid v13 is running.</p>
+        <p id="updateStatusText">Word Grid v14 is running.</p>
         <div class="updateBtnGrid">
           <button class="primaryBtn" id="checkUpdateBtn" type="button">Check for update</button>
           <button class="primaryBtn hidden" id="forceLatestBtn" type="button">Apply update</button>
@@ -234,7 +234,7 @@
 </div>
 
 <script type="module">
-const VERSION = 'v13';
+const VERSION = 'v14';
 const STORAGE = {
   current: 'word-grid-current-v1',
   stats: 'word-grid-stats-v1',
@@ -896,7 +896,21 @@ function renderKeyboard(){
   });
 }
 function makeKey(label,value,extra=''){
-  const btn=document.createElement('button'); btn.className=`key ${extra||''}`.trim(); btn.textContent=label; btn.addEventListener('click',()=>handleKey(value)); return btn;
+  const btn=document.createElement('button');
+  btn.type='button';
+  btn.className=`key ${extra||''}`.trim();
+  btn.textContent=label;
+  btn.setAttribute('aria-label', label === '⌫' ? 'Backspace' : label);
+  const press=(event)=>{
+    if(event && event.cancelable) event.preventDefault();
+    handleKey(value);
+  };
+  btn.addEventListener('pointerdown', press, {passive:false});
+  btn.addEventListener('click', event=>{
+    // pointerdown already handled real taps/clicks instantly; prevent delayed duplicate clicks.
+    event.preventDefault();
+  });
+  return btn;
 }
 function keyboardRanks(){
   const g=STATE.game;
@@ -1136,13 +1150,11 @@ els.clearStatsBtn.addEventListener('click',clearStatsConfirm);
 els.themeToggle.addEventListener('click',()=>{const s=loadSettings(); s.theme=s.theme==='light'?'dark':'light'; saveSettings(s); applySettings(); renderSettings();});
 els.clearCurrentBtn.addEventListener('click',()=>{localStorage.removeItem(STORAGE.current); toast('Current game cleared.');});
 
-let lastTouchEnd = 0;
-document.addEventListener('touchend', e=>{
-  const now = Date.now();
-  if(now - lastTouchEnd <= 300) e.preventDefault();
-  lastTouchEnd = now;
-}, {passive:false});
+// Keep fast keyboard taps responsive while avoiding iOS gesture zoom on the app surface.
 document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
+document.addEventListener('dblclick', e=>{
+  if(e.target.closest('.keyboardWrap, .gameScreen, .modalShade')) e.preventDefault();
+}, {passive:false});
 window.addEventListener('keydown',e=>{
   if(STATE.screen !== 'game') return;
   if(els.modalShade.classList.contains('show')) return;
