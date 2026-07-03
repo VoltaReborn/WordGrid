@@ -70,9 +70,18 @@
     .scroll::-webkit-scrollbar-thumb,.boardsScroll::-webkit-scrollbar-thumb,.modalBody::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:999px;border:2px solid transparent;background-clip:padding-box}
     .hero{padding:20px;border-radius:28px;background:linear-gradient(135deg,rgba(124,199,255,.22),rgba(169,140,255,.14)),var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:16px;position:relative;overflow:hidden}
     .hero:after{content:"";position:absolute;inset:auto -40px -70px auto;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08)}
-    .hero h1{margin:0 0 8px;font-size:2rem;line-height:1;font-weight:950;letter-spacing:-.04em}
+    .hero h1{margin:0;font-size:2.05rem;line-height:1;font-weight:950;letter-spacing:-.04em}
     .hero p{margin:0;color:var(--muted);line-height:1.45;max-width:34em}
-    .versionPill{display:inline-flex;align-items:center;gap:8px;font-size:.76rem;color:var(--ink);font-weight:850;background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:999px;padding:7px 10px;margin-top:16px}
+    .versionPill{appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:.78rem;color:var(--ink);font-weight:950;background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:999px;padding:8px 12px;margin-top:14px;position:relative;z-index:2;box-shadow:0 8px 18px rgba(0,0,0,.12)}
+    .versionPill:active{transform:scale(.98)}
+    .versionPill .updateDot{width:7px;height:7px;border-radius:999px;background:transparent;box-shadow:none;display:inline-block}
+    .versionPill.updateAvailable{border-color:rgba(255,107,122,.9);background:rgba(255,107,122,.14);animation:updatePillPulse 1.05s ease-in-out infinite}
+    .versionPill.updateAvailable .updateDot{background:#ff6b7a;box-shadow:0 0 12px rgba(255,107,122,.9)}
+    @keyframes updatePillPulse{0%,100%{box-shadow:0 8px 18px rgba(0,0,0,.12),0 0 0 1px rgba(255,107,122,.12)}50%{box-shadow:0 8px 18px rgba(0,0,0,.12),0 0 0 2px rgba(255,107,122,.5),0 0 18px rgba(255,107,122,.34)}}
+    .updatePanel{display:none;margin:12px 0 16px;border-radius:22px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(124,199,255,.13),rgba(169,140,255,.09)),var(--panel);box-shadow:0 12px 26px rgba(0,0,0,.16);padding:14px}
+    .updatePanel.open{display:block}
+    .updatePanel h3{margin:0 0 7px;font-size:.92rem;letter-spacing:-.01em}.updatePanel p{margin:0;color:var(--muted);font-size:.82rem;line-height:1.35}.updateBtnGrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}.updateBtnGrid .primaryBtn,.updateBtnGrid .secondaryBtn{min-height:42px;border-radius:15px}.updateFresh{color:#9ff7cf!important;font-weight:950}.updateStale{color:#fff0a8!important;font-weight:950}
+    .continueCard{width:100%;display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:18px;background:linear-gradient(135deg,rgba(124,199,255,.14),rgba(169,140,255,.09)),var(--panel);border:1px solid var(--line);box-shadow:0 10px 22px rgba(0,0,0,.12);text-align:left}.continueCard .emoji{width:34px;height:34px;display:grid;place-items:center;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid var(--line);flex:0 0 auto}.continueCard strong{display:block;font-size:.9rem;font-weight:950;line-height:1.1}.continueCard span span{display:block;color:var(--muted);font-size:.74rem;font-weight:800;margin-top:2px;line-height:1.15}.continueCard:active{transform:scale(.99)}
     .tileGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .tile{min-height:126px;padding:16px;border-radius:24px;background:linear-gradient(160deg,var(--card),var(--panel));border:1px solid var(--line);text-align:left;box-shadow:0 14px 28px rgba(0,0,0,.15);position:relative;overflow:hidden;transition:transform .16s ease, border-color .16s ease, background .16s ease}
     .tile:active{transform:scale(.98)}
@@ -128,8 +137,15 @@
     <div class="scroll">
       <div class="hero">
         <h1>Word Grid</h1>
-        <p>One clean, ad-free home for daily puzzles, unlimited games, multi-board chaos, evil mode, reverse patterns, and Pokémon name puzzles.</p>
-        <div class="versionPill">v1.0.8 · local-first PWA</div>
+        <button class="versionPill" id="versionPill" type="button" aria-label="App update and version"><span id="versionLabel">v13</span><span class="updateDot" aria-hidden="true"></span></button>
+      </div>
+      <div class="updatePanel" id="homeUpdatePanel" aria-live="polite">
+        <h3>App update</h3>
+        <p id="updateStatusText">Word Grid v13 is running.</p>
+        <div class="updateBtnGrid">
+          <button class="primaryBtn" id="checkUpdateBtn" type="button">Check for update</button>
+          <button class="primaryBtn hidden" id="forceLatestBtn" type="button">Apply update</button>
+        </div>
       </div>
       <div id="continueSlot"></div>
       <div class="tileGrid" id="modeTiles"></div>
@@ -218,7 +234,7 @@
 </div>
 
 <script type="module">
-const VERSION = '1.0.12';
+const VERSION = 'v13';
 const STORAGE = {
   current: 'word-grid-current-v1',
   stats: 'word-grid-stats-v1',
@@ -281,7 +297,7 @@ const $$ = sel => Array.from(document.querySelectorAll(sel));
 const els = {
   app:$('#app'), backBtn:$('#backBtn'), topTitle:$('#topTitle'), topSubtitle:$('#topSubtitle'),
   home:$('#homeScreen'), setup:$('#setupScreen'), game:$('#gameScreen'), stats:$('#statsScreen'), settings:$('#settingsScreen'),
-  modeTiles:$('#modeTiles'), continueSlot:$('#continueSlot'), setupTitle:$('#setupTitle'), setupDesc:$('#setupDesc'),
+  modeTiles:$('#modeTiles'), continueSlot:$('#continueSlot'), versionPill:$('#versionPill'), versionLabel:$('#versionLabel'), homeUpdatePanel:$('#homeUpdatePanel'), updateStatusText:$('#updateStatusText'), checkUpdateBtn:$('#checkUpdateBtn'), forceLatestBtn:$('#forceLatestBtn'), setupTitle:$('#setupTitle'), setupDesc:$('#setupDesc'),
   dailyChoices:$('#dailyChoices'), boardSection:$('#boardSection'), boardChoices:$('#boardChoices'), lengthSection:$('#lengthSection'), lengthChoices:$('#lengthChoices'), hardSection:$('#hardSection'), hardToggle:$('#hardToggle'), hardSwitch:$('#hardSwitch'), startBtn:$('#startBtn'), setupFinePrint:$('#setupFinePrint'),
   gameMeta:$('#gameMeta'), boards:$('#boards'), keyboard:$('#keyboard'), buffer:$('#buffer'), toast:$('#toast'), targetPattern:$('#targetPattern'), pokemonBankBar:$('#pokemonBankBar'),
   statsList:$('#statsList'), clearStatsBtn:$('#clearStatsBtn'), themeToggle:$('#themeToggle'), themeSwitch:$('#themeSwitch'), clearCurrentBtn:$('#clearCurrentBtn'), bankSummary:$('#bankSummary'),
@@ -383,9 +399,9 @@ function setScreen(name){
   STATE.screen=name;
   for(const [key, el] of Object.entries({home:els.home, setup:els.setup, game:els.game, stats:els.stats, settings:els.settings})){el.classList.toggle('active', key===name);}
   els.backBtn.style.visibility = name === 'home' ? 'hidden' : 'visible';
-  if(name==='home'){els.topTitle.textContent='Word Grid'; els.topSubtitle.textContent='Pick a mode'; renderHome();}
+  if(name==='home'){els.topTitle.textContent='Word Grid'; els.topSubtitle.textContent=''; renderHome();}
   if(name==='stats'){els.topTitle.textContent='Stats'; els.topSubtitle.textContent='Separate tracking for every setup'; renderStats();}
-  if(name==='settings'){els.topTitle.textContent='Settings'; els.topSubtitle.textContent=`v${VERSION}`; renderSettings();}
+  if(name==='settings'){els.topTitle.textContent='Settings'; els.topSubtitle.textContent=currentVersionLabel(); renderSettings();}
 }
 function goBack(){
   if(STATE.screen === 'game' && STATE.game && STATE.game.status === 'playing'){saveCurrentGame(); setScreen('home'); return;}
@@ -415,14 +431,128 @@ function showModal(title, body, actions=[]){
 }
 function closeModal(){els.modalShade.classList.remove('show');}
 
+let updateCheckTimer = null;
+let latestRemoteVersion = '';
+let applyingUpdateNow = false;
+let lastAutoUpdateCheck = 0;
+function normalizeVersion(v){return String(v || '').trim().replace(/^v/i,'').split(/[+\s]/)[0];}
+function displayVersion(v){const clean=normalizeVersion(v); if(!clean) return currentVersionLabel(); return clean.toLowerCase().startsWith('v') ? clean : `v${clean}`;}
+function currentVersionText(){return normalizeVersion(VERSION);}
+function currentVersionLabel(){return displayVersion(VERSION);}
+function setUpdateStatus(msg, kind=''){
+  if(!els.updateStatusText) return;
+  els.updateStatusText.textContent = msg;
+  els.updateStatusText.classList.toggle('updateFresh', kind === 'fresh');
+  els.updateStatusText.classList.toggle('updateStale', kind === 'stale');
+  els.forceLatestBtn?.classList.toggle('hidden', kind !== 'stale');
+}
+function setUpdateAvailable(remote=''){
+  latestRemoteVersion = remote || '';
+  const available = !!remote && remote !== currentVersionText();
+  els.versionPill?.classList.toggle('updateAvailable', available);
+  if(els.versionPill){
+    els.versionPill.setAttribute('aria-label', available ? `App update available: Word Grid ${displayVersion(remote)}` : `Word Grid ${currentVersionLabel()}. App update`);
+    els.versionPill.title = available ? `Update available: ${displayVersion(remote)}` : `Word Grid ${currentVersionLabel()}`;
+  }
+}
+async function fetchRemoteVersion(){
+  const res = await fetch(`./version.json?ts=${Date.now()}`, {cache:'no-store'});
+  if(!res.ok) throw new Error('Version check failed');
+  const data = await res.json();
+  return normalizeVersion(data.version || data.appVersion || data.build || data.label);
+}
+async function checkForUpdate({quiet=false, auto=false}={}){
+  if(!auto) setUpdateStatus('Checking for updates…');
+  lastAutoUpdateCheck = Date.now();
+  try{
+    const remote = await fetchRemoteVersion();
+    const current = currentVersionText();
+    if(remote && remote !== current){
+      setUpdateAvailable(remote);
+      setUpdateStatus(`A newer version is published: ${displayVersion(remote)}. Tap “Apply update.”`, 'stale');
+      if(!quiet && !auto) toast(`Update available: ${displayVersion(remote)}`);
+      return true;
+    }
+    setUpdateAvailable('');
+    setUpdateStatus(`Word Grid ${displayVersion(current)} is current.`, 'fresh');
+    if(!quiet && !auto) toast('Word Grid is up to date.');
+    return false;
+  } catch(err){
+    if(!auto) setUpdateStatus('Could not check for updates. Try again after GitHub finishes deploying.');
+    if(!quiet && !auto) toast('Update check failed.');
+    return false;
+  }
+}
+async function clearWordGridCaches(){
+  if('caches' in window){
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => key.startsWith('word-grid-')).map(key => caches.delete(key)));
+  }
+}
+async function forceLatestVersion(){
+  applyingUpdateNow = true;
+  setUpdateStatus('Applying update…');
+  try{
+    const reg = await navigator.serviceWorker?.getRegistration?.();
+    await reg?.update?.();
+    const freshReg = await navigator.serviceWorker?.getRegistration?.();
+    if(freshReg?.waiting) freshReg.waiting.postMessage({type:'SKIP_WAITING'});
+    await clearWordGridCaches();
+  } catch(err){ /* reload anyway */ }
+  const path = window.location.pathname || './';
+  window.location.replace(`${path}?refresh=${Date.now()}`);
+}
+function toggleUpdatePanel(){
+  els.homeUpdatePanel?.classList.toggle('open');
+  if(els.homeUpdatePanel?.classList.contains('open')) checkForUpdate({quiet:true});
+}
+function startAutomaticUpdateChecks(){
+  setTimeout(()=>checkForUpdate({quiet:true, auto:true}), 3500);
+  if(updateCheckTimer) clearInterval(updateCheckTimer);
+  updateCheckTimer = setInterval(()=>checkForUpdate({quiet:true, auto:true}), 12 * 60 * 1000);
+  const checkOnResume = () => {
+    if(document.visibilityState && document.visibilityState !== 'visible') return;
+    if(Date.now() - lastAutoUpdateCheck > 60 * 1000) checkForUpdate({quiet:true, auto:true});
+  };
+  document.addEventListener('visibilitychange', checkOnResume);
+  window.addEventListener('focus', checkOnResume);
+}
+function wireServiceWorkerUpdates(){
+  if(!('serviceWorker' in navigator)) return;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if(!applyingUpdateNow || reloading) return;
+    reloading = true;
+    window.location.reload();
+  });
+  navigator.serviceWorker.getRegistration?.().then(reg => {
+    if(!reg) return;
+    if(reg.waiting){
+      setUpdateStatus('A downloaded update is waiting. Tap “Apply update.”', 'stale');
+      checkForUpdate({quiet:true, auto:true});
+    }
+    reg.addEventListener('updatefound', () => {
+      const worker = reg.installing;
+      if(!worker) return;
+      worker.addEventListener('statechange', () => {
+        if(worker.state === 'installed' && navigator.serviceWorker.controller){
+          setUpdateStatus('A new version is ready. Tap “Apply update.”', 'stale');
+          checkForUpdate({quiet:true, auto:true});
+        }
+      });
+    });
+  }).catch(()=>{});
+}
+
 function renderHome(){
+  if(els.versionLabel) els.versionLabel.textContent = currentVersionLabel();
   els.modeTiles.innerHTML='';
   const current = safeJsonParse(localStorage.getItem(STORAGE.current), null);
   els.continueSlot.innerHTML='';
   if(current && current.status === 'playing'){
     const btn=document.createElement('button');
-    btn.className='tile big';
-    btn.innerHTML=`<span class="emoji">▶️</span><span><strong>Continue Current Game</strong><span>${current.label || 'Saved puzzle'} · ${current.guesses?.length || 0}/${current.guessLimit} guesses</span></span>`;
+    btn.className='continueCard';
+    btn.innerHTML=`<span class="emoji">▶️</span><span><strong>Continue</strong><span>${current.label || 'Saved puzzle'} · ${current.guesses?.length || 0}/${current.guessLimit} guesses</span></span>`;
     btn.addEventListener('click',()=>{STATE.game=current; STATE.buffer=''; renderGame(); setScreen('game');});
     els.continueSlot.appendChild(btn);
   }
@@ -716,7 +846,7 @@ function openPokemonBankModal(){
   const choices=pokemonChoicesForGame(g);
   if(!g || !choices.length) return;
   const regularCount=pokemonAllowedRegularCount(g);
-  const regularText = regularCount ? `Regular ${g.length}-letter words are also accepted as guesses, so you can narrow down the Pokémon without already knowing every name.` : `For this word length, v1.0.9 only has Pokémon names in the guess bank.`;
+  const regularText = regularCount ? `Regular ${g.length}-letter words are also accepted as guesses, so you can narrow down the Pokémon without already knowing every name.` : `For this word length, this build only has Pokémon names in the guess bank.`;
   showModal('Pokémon Bank', `<div class="bankFine">Tap a ${g.length}-letter Pokémon to fill your guess. You still press <strong>Enter</strong> to submit. ${regularText}</div><input class="bankSearch" id="pokemonBankSearch" autocomplete="off" placeholder="Search ${choices.length} Pokémon…"><div class="bankModalCount" id="pokemonBankCount"></div><div class="bankModalGrid" id="pokemonBankGrid"></div>`, [{label:'Close', kind:'secondary'}]);
   const input=document.getElementById('pokemonBankSearch');
   const grid=document.getElementById('pokemonBankGrid');
@@ -995,6 +1125,9 @@ function clearStatsConfirm(){
 }
 
 els.backBtn.addEventListener('click',goBack);
+els.versionPill?.addEventListener('click',toggleUpdatePanel);
+els.checkUpdateBtn?.addEventListener('click',()=>checkForUpdate({quiet:false}));
+els.forceLatestBtn?.addEventListener('click',forceLatestVersion);
 els.startBtn.addEventListener('click',startGame);
 els.hardToggle.addEventListener('click',()=>{STATE.setup.hard=!STATE.setup.hard; renderSetup();});
 els.modalClose.addEventListener('click',closeModal);
@@ -1019,7 +1152,12 @@ window.addEventListener('keydown',e=>{
   else if(/^[a-zA-Z]$/.test(e.key)) {handleKey(e.key.toUpperCase());}
 });
 
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').then(reg=>{reg.update?.(); wireServiceWorkerUpdates();}).catch(()=>{});
+    startAutomaticUpdateChecks();
+  });
+}
 applySettings();
 renderHome();
 setScreen('home');

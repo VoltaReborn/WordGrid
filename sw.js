@@ -1,5 +1,5 @@
-const CACHE_NAME = 'word-grid-v1.0.12';
-const ASSETS = [
+const CACHE_NAME = 'word-grid-v13';
+const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
@@ -9,34 +9,57 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(APP_SHELL))
+  );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys
+        .filter(key => key.startsWith('word-grid-') && key !== CACHE_NAME)
+        .map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request, {cache: 'no-store'});
+    if (response && response.ok) cache.put(request, response.clone());
+    return response;
+  } catch (err) {
+    const cached = await cache.match(request);
+    return cached || cache.match('./index.html');
+  }
+}
+
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response && response.ok && new URL(request.url).origin === self.location.origin) {
+    const cache = await caches.open(CACHE_NAME);
+    cache.put(request, response.clone());
+  }
+  return response;
+}
+
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  const requestUrl = new URL(event.request.url);
-  const isAppShell = event.request.mode === 'navigate' || requestUrl.pathname.endsWith('/index.html') || requestUrl.pathname.endsWith('/version.json') || requestUrl.pathname.endsWith('/sw.js');
-  if (isAppShell) {
-    event.respondWith(
-      fetch(event.request).then(response => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-        return response;
-      }).catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
-    );
+  const url = new URL(event.request.url);
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('/index.html') || url.pathname.endsWith('/version.json') || url.pathname.endsWith('/sw.js')) {
+    event.respondWith(networkFirst(event.request));
     return;
   }
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-      return response;
-    }).catch(() => caches.match('./index.html')))
-  );
+  event.respondWith(cacheFirst(event.request).catch(() => caches.match('./index.html')));
 });
