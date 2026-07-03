@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Word Grid</title>
   <meta name="theme-color" content="#121936" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -52,9 +52,9 @@
       color-scheme:light;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%;margin:0;background:radial-gradient(circle at 50% -10%,rgba(124,199,255,.22),transparent 36%),var(--bg);color:var(--ink);overflow:hidden}
+    html,body{height:100%;touch-action:manipulation;margin:0;background:radial-gradient(circle at 50% -10%,rgba(124,199,255,.22),transparent 36%),var(--bg);color:var(--ink);overflow:hidden}
     button,input,select{font:inherit;color:inherit}
-    button{border:0;cursor:pointer}
+    button{border:0;cursor:pointer;touch-action:manipulation}
     .app{height:100dvh;max-width:620px;margin:0 auto;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 22%),var(--bg);position:relative;display:flex;flex-direction:column;border-left:1px solid var(--line);border-right:1px solid var(--line)}
     .topbar{height:64px;min-height:64px;display:flex;align-items:center;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--line);background:rgba(12,16,34,.76);backdrop-filter:blur(14px);z-index:10}
     [data-theme="light"] .topbar{background:rgba(238,243,255,.82)}
@@ -106,7 +106,7 @@
     @keyframes pop{50%{transform:scale(1.08)}}@keyframes flip{50%{transform:rotateX(88deg) scale(.98)}}
     .targetPattern{margin:10px auto 4px;text-align:center}.targetPattern .label{font-size:.76rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.targetCells{display:flex;justify-content:center;gap:5px}.reverseHint{display:inline-flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 12px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:.8rem;color:var(--muted);font-weight:900}.reverseHint strong{color:var(--ink);letter-spacing:.08em}.guessRow.activeReverse .cell{box-shadow:0 0 0 2px var(--accent),0 8px 16px rgba(0,0,0,.18)}.guessRow.lockedReverse .cell{filter:saturate(.9) brightness(.9)}
     .keyboardWrap{padding:10px 7px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:rgba(12,16,34,.88);backdrop-filter:blur(14px)}[data-theme="light"] .keyboardWrap{background:rgba(238,243,255,.92)}
-    .buffer{min-height:26px;text-align:center;color:var(--muted);font-weight:900;font-size:.8rem;margin-bottom:6px}.kbdRow{display:flex;gap:5px;justify-content:center;margin-bottom:6px}.key{height:44px;min-width:0;flex:1;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);font-weight:950;text-transform:uppercase;color:var(--ink);box-shadow:0 5px 10px rgba(0,0,0,.12)}.key.wide{flex:1.55;font-size:.72rem}.key.correct{background:var(--good);color:white}.key.present{background:var(--warn);color:white}.key.absent{background:var(--bad);color:white}.key:active{transform:translateY(1px)}
+    .buffer{min-height:26px;text-align:center;color:var(--muted);font-weight:900;font-size:.8rem;margin-bottom:6px}.kbdRow{display:flex;gap:5px;justify-content:center;margin-bottom:6px}.key{height:44px;min-width:0;flex:1;border-radius:10px;background:var(--bad);border:1px solid var(--line);font-weight:950;text-transform:uppercase;color:var(--ink);box-shadow:0 5px 10px rgba(0,0,0,.12);touch-action:manipulation}.key.wide{flex:1.55;font-size:.72rem}.key.correct{background:var(--good);color:white}.key.present{background:var(--warn);color:white}.key.absent{background:var(--panel-2);color:white}.key:active{transform:translateY(1px)}
 
     .pokemonBankBar{margin:0 0 8px}.pokemonBankBtn{width:100%;min-height:48px;border-radius:16px;border:1px solid rgba(124,199,255,.34);background:linear-gradient(135deg,rgba(124,199,255,.18),rgba(169,140,255,.11)),var(--panel-2);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;text-align:left;box-shadow:0 8px 18px rgba(0,0,0,.12)}.pokemonBankBtn strong{display:block;font-size:.88rem;font-weight:950}.pokemonBankBtn small{display:block;font-size:.68rem;color:var(--muted);font-weight:800;margin-top:1px;line-height:1.15}.pokemonBankBtn .bankAction{font-size:.76rem;font-weight:950;color:white;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:999px;padding:7px 10px;white-space:nowrap}.bankSearch{width:100%;height:46px;border-radius:16px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:0 13px;font-weight:850;outline:none;margin-bottom:10px}.bankSearch:focus{border-color:rgba(124,199,255,.7);box-shadow:0 0 0 3px rgba(124,199,255,.12)}.bankFine{font-size:.84rem;color:var(--muted);line-height:1.35;margin-bottom:12px}.bankModalCount{font-size:.75rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}.bankModalGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.bankChoice{min-height:42px;border-radius:13px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-weight:900;font-size:.86rem;padding:8px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bankChoice.active{background:linear-gradient(135deg,rgba(124,199,255,.38),rgba(169,140,255,.26));border-color:rgba(124,199,255,.72);box-shadow:0 0 0 2px rgba(124,199,255,.08) inset}.bankChoice:active,.pokemonBankBtn:active{transform:translateY(1px)}
     .toast{position:absolute;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);max-width:calc(100% - 30px);padding:12px 14px;border-radius:16px;background:#10162e;color:#fff;border:1px solid rgba(255,255,255,.16);box-shadow:var(--shadow);opacity:0;pointer-events:none;z-index:40;font-weight:850;text-align:center;line-height:1.25;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -218,7 +218,7 @@
 </div>
 
 <script type="module">
-const VERSION = '1.0.10';
+const VERSION = '1.0.12';
 const STORAGE = {
   current: 'word-grid-current-v1',
   stats: 'word-grid-stats-v1',
@@ -806,10 +806,15 @@ function handleKey(key){
   if(key==='Enter'){submitGuess(); return;}
   if(/^[A-Z]$/.test(key) && STATE.buffer.length<g.length){STATE.buffer += key.toLowerCase(); updateBuffer();}
 }
+function isAllowedGuess(g, guess){
+  if(!g || guess.length !== g.length) return false;
+  if(g.length < 5 && /^[a-z]+$/.test(guess)) return true;
+  return Array.isArray(g.allowedWords) && g.allowedWords.includes(guess);
+}
 function submitGuess(){
   const g=STATE.game; const guess=STATE.buffer.toLowerCase();
   if(guess.length !== g.length){toast(`Need ${g.length} letters.`); return;}
-  if(!g.allowedWords.includes(guess)){toast(g.dictionary==='pokemon'?'Not in the Pokémon/word guess bank.':'Not in the word bank.'); return;}
+  if(!isAllowedGuess(g, guess)){toast(g.dictionary==='pokemon'?'Not in the Pokémon/word guess bank.':'Not in the word bank.'); return;}
   const hardMsg = g.hard ? hardModeMessage(g, guess) : '';
   if(hardMsg){toast(hardMsg); return;}
   let resultRow=[];
@@ -997,6 +1002,14 @@ els.modalShade.addEventListener('click',e=>{if(e.target===els.modalShade) closeM
 els.clearStatsBtn.addEventListener('click',clearStatsConfirm);
 els.themeToggle.addEventListener('click',()=>{const s=loadSettings(); s.theme=s.theme==='light'?'dark':'light'; saveSettings(s); applySettings(); renderSettings();});
 els.clearCurrentBtn.addEventListener('click',()=>{localStorage.removeItem(STORAGE.current); toast('Current game cleared.');});
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e=>{
+  const now = Date.now();
+  if(now - lastTouchEnd <= 300) e.preventDefault();
+  lastTouchEnd = now;
+}, {passive:false});
+document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
 window.addEventListener('keydown',e=>{
   if(STATE.screen !== 'game') return;
   if(els.modalShade.classList.contains('show')) return;

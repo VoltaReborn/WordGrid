@@ -1,4 +1,4 @@
-const CACHE_NAME = 'word-grid-v1.0.10';
+const CACHE_NAME = 'word-grid-v1.0.12';
 const ASSETS = [
   './',
   './index.html',
