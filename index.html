@@ -111,7 +111,7 @@
     .boards{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}.boards.single{display:flex;justify-content:center;align-items:flex-start}.boards.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.boards.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}
     .boardCard{border-radius:20px;background:rgba(255,255,255,.04);border:1px solid var(--line);padding:10px;min-width:0}.boardCard.singleBoard{width:max-content;max-width:100%;margin:0 auto;padding:4px;background:transparent;border:0;box-shadow:none}.boardCard.solved{border-color:rgba(79,186,111,.5);box-shadow:0 0 0 1px rgba(79,186,111,.14) inset}.boardCard.failed{border-color:rgba(255,107,122,.45)}
     .boardHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;color:var(--muted);font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.boardCard.singleBoard .boardHead{display:none}.answerReveal{font-size:.72rem;color:var(--accent);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .grid{display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center}.guessRow{display:flex;flex-direction:row;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}.cell{width:var(--cell-size,var(--cell));height:var(--cell-size,var(--cell));flex:0 0 var(--cell-size,var(--cell));border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;text-transform:uppercase;font-weight:950;font-size:calc(var(--cell-size,var(--cell)) * .45);background:var(--panel-2);box-shadow:0 6px 12px rgba(0,0,0,.10);transition:transform .14s ease, background .18s ease, border-color .18s ease}.cell.filled{border-color:rgba(255,255,255,.28)}.cell.correct{background:var(--good);border-color:var(--good);color:white}.cell.present{background:var(--warn);border-color:var(--warn);color:white}.cell.absent{background:var(--bad);border-color:var(--bad);color:white}.cell.target{box-shadow:0 0 0 2px rgba(255,255,255,.12) inset}.cell.pop{animation:pop .18s ease}.cell.flip{animation:flip .36s ease}
+    .grid{display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center}.guessRow{display:flex;flex-direction:row;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}.cell{width:var(--cell-size,var(--cell));height:var(--cell-size,var(--cell));flex:0 0 var(--cell-size,var(--cell));border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;text-transform:uppercase;font-weight:950;font-size:calc(var(--cell-size,var(--cell)) * .45);background:var(--panel-2);box-shadow:0 6px 12px rgba(0,0,0,.10);transition:transform .14s ease, background .18s ease, border-color .18s ease}.cell.filled{border-color:rgba(255,255,255,.28)}.cell.correct{background:var(--good);border-color:var(--good);color:white}.cell.present{background:var(--warn);border-color:var(--warn);color:white}.cell.absent{background:var(--bad);border-color:var(--bad);color:white}.cell.target{box-shadow:0 0 0 2px rgba(255,255,255,.12) inset}.cell.pop{animation:pop .18s ease}.cell.flip{animation:flip .36s ease}.cell.revealPending{animation-duration:.58s;animation-timing-function:cubic-bezier(.22,.72,.18,1);animation-fill-mode:both;animation-delay:var(--reveal-delay,0ms);transform-style:preserve-3d;will-change:transform,background,border-color,color}.cell.revealPending.correct{animation-name:revealCorrect}.cell.revealPending.present{animation-name:revealPresent}.cell.revealPending.absent{animation-name:revealAbsent}@keyframes revealCorrect{0%,48%{transform:rotateX(0deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}49%,50%{transform:rotateX(90deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:transparent}51%,100%{transform:rotateX(0deg);background:var(--good);border-color:var(--good);color:white}}@keyframes revealPresent{0%,48%{transform:rotateX(0deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}49%,50%{transform:rotateX(90deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:transparent}51%,100%{transform:rotateX(0deg);background:var(--warn);border-color:var(--warn);color:white}}@keyframes revealAbsent{0%,48%{transform:rotateX(0deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}49%,50%{transform:rotateX(90deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:transparent}51%,100%{transform:rotateX(0deg);background:var(--bad);border-color:var(--bad);color:white}}
     @keyframes pop{50%{transform:scale(1.08)}}@keyframes flip{50%{transform:rotateX(88deg) scale(.98)}}
     .targetPattern{margin:10px auto 4px;text-align:center}.targetPattern .label{font-size:.76rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.targetCells{display:flex;justify-content:center;gap:5px}.reverseHint{display:inline-flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 12px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:.8rem;color:var(--muted);font-weight:900}.reverseHint strong{color:var(--ink);letter-spacing:.08em}.guessRow.activeReverse .cell{box-shadow:0 0 0 2px var(--accent),0 8px 16px rgba(0,0,0,.18)}.guessRow.lockedReverse .cell{filter:saturate(.9) brightness(.9)}
     .keyboardWrap{padding:10px 7px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:rgba(12,16,34,.88);backdrop-filter:blur(14px)}[data-theme="light"] .keyboardWrap{background:rgba(238,243,255,.92)}
@@ -137,11 +137,11 @@
     <div class="scroll">
       <div class="hero">
         <h1>Word Grid</h1>
-        <button class="versionPill" id="versionPill" type="button" aria-label="App update and version"><span id="versionLabel">v14</span><span class="updateDot" aria-hidden="true"></span></button>
+        <button class="versionPill" id="versionPill" type="button" aria-label="App update and version"><span id="versionLabel">v15</span><span class="updateDot" aria-hidden="true"></span></button>
       </div>
       <div class="updatePanel" id="homeUpdatePanel" aria-live="polite">
         <h3>App update</h3>
-        <p id="updateStatusText">Word Grid v14 is running.</p>
+        <p id="updateStatusText">Word Grid v15 is running.</p>
         <div class="updateBtnGrid">
           <button class="primaryBtn" id="checkUpdateBtn" type="button">Check for update</button>
           <button class="primaryBtn hidden" id="forceLatestBtn" type="button">Apply update</button>
@@ -234,7 +234,7 @@
 </div>
 
 <script type="module">
-const VERSION = 'v14';
+const VERSION = 'v15';
 const STORAGE = {
   current: 'word-grid-current-v1',
   stats: 'word-grid-stats-v1',
@@ -247,7 +247,9 @@ const STATE = {
   screen:'home',
   setup:null,
   game:null,
-  buffer:''
+  buffer:'',
+  revealing:null,
+  inputLocked:false
 };
 
 const RAW_STANDARD_4 = `able ache acid aged airy aloe also amid apex aqua arch area atom aunt auto axle balm bank base bask bath beam bear beat belt bend bent best beta bias bird bite boat body boil bold bolt bond bone book boom boot bore born boss bout bowl brim brow buck bulb bulk burn bush busy cage cake calm camp cane cape card care cart case cash cave char chef chew chin chip chop chum cite city clad clam clan clay clip club clue coal coat coax code coil coin cold colt come cool cord core cost cove crab cram crew crib crop crow cube curb cure curl cute damp dare dark dart dash date dawn dead deaf deal dear deck deed deem deep deer deft deny dial dice diet dime dine dirt disk dive dock doll dome doom door dove down draw drip drop drum duck duel dusk duty each earn ease east easy echo edge edit ever exam exit face fact fade fair fake fame fare farm fast fate fawn fear feed feel fern file film find fine fire firm fish fizz flag flap flat flaw flex flip flow foam foil fold fond food fool foot fork fort foul four free fret frog from fuel full fund fury gain game gate gave gaze gear gift girl give glad glow glue goal goat gold golf gone good gown grab gray grim grin grip grit grow gulf hair half hall halo hand hard harm harp hate have haze head heal heap hear heat held help herd here hero hide high hill hint hive hold hole holy home hoof hook hope horn host hour huge hulk hunt hush idea idle inch into iris iron item jade jazz joke jolt judo jump junk just keep kiln kind king kite knee knit knot lace lack lady lake lamb land lane lard late lawn lazy leaf leak lean leap left lend lens liar life lift like limb lime line link lion list live load loaf loan lock loft lone long look loom loop lord lore loud love luck lunar made mage mail main make male many mare mark mask mate maze meal mean meat meet melt menu mere mesh mild mile milk mind mine mint mist mode mold monk moon more most move much mule muse must nail name navy near neat neck need nest news nice nine node nook noon nose note oath odor omen once open oval oven over pace pack page paid pain pair pale palm park part path peak pear peat peck peek peel peer pest pick pier pile pine pink pipe plan play plot plug plum poem poke pole pond pony pool poor pork port pose post pour prey puff pull pulp pure push quiz race rack raft rain rake rang rank rant rare rash rate read reef reel rely rent rest rice rich ride ring riot ripe rise risk road roam roar robe rock role roof room root rope rose rude ruin rule rung rush safe sail sake salt sand sane sang sank save scan seal seam sear seat seed seek seem self sell send shed ship shop shot show shut sick side silk sink site size slab slam slap slew slim slip slow slug snap snow soak soap sock sofa soft soil sold sole song soon sore sort soul soup sour spam span spar spin spot spur star stay stem step stir stop such suit sure swan sway tail take tale talk tall tame tank tape task taxi teal tear teen tell tend tent than that thaw them then thin this tide tidy tied tile tilt time tint tiny tire toad toil told toll tomb tone took tool torn toss town trap tray tree trek trim trip true tube tuck tuna tune turf turn twig twin unit upon urge used user vary vase vast veil very vibe vice view vine visa void vote wage wake walk wall wand want ward warm warn wash wave weak wear weed week weep well went were west what when whip whom wide wife wild will wind wine wing wink wire wise wish wolf wood wool word wore work worm yard yarn yawn year yoga yoke your zero zest zinc zone`.split(/\s+/);
@@ -672,7 +674,7 @@ function displayForWord(word, isPokemon){
 }
 function startGame(){
   const game=buildGame();
-  STATE.game=game; STATE.buffer='';
+  STATE.game=game; STATE.buffer=''; STATE.revealing=null; STATE.inputLocked=false;
   renderGame(); setScreen('game'); saveCurrentGame();
 }
 function saveCurrentGame(){if(STATE.game) localStorage.setItem(STORAGE.current, JSON.stringify(STATE.game));}
@@ -751,7 +753,14 @@ function renderBoards(){
         const ch=word[i] || '';
         cell.textContent=ch;
         if(ch) cell.classList.add('filled');
-        if(result && typeof result[i] !== 'undefined') cell.classList.add(patternToClass(result[i]));
+        if(result && typeof result[i] !== 'undefined') {
+          const cls=patternToClass(result[i]);
+          cell.classList.add(cls);
+          if(STATE.revealing && STATE.revealing.row === r){
+            cell.classList.add('revealPending');
+            cell.style.setProperty('--reveal-delay', `${i * 240}ms`);
+          }
+        }
         row.appendChild(cell);
       }
       grid.appendChild(row);
@@ -931,7 +940,7 @@ function keyboardRanks(){
   });
   return Object.fromEntries(Object.entries(best).filter(([,val])=>val>=0).map(([letter,val])=>[letter,cls[val]]));
 }
-function updateBuffer(){
+function updateBuffer(render=true){
   const g=STATE.game;
   if(g.status !== 'playing'){
     els.buffer.textContent = g.won ? 'Solved' : 'Game over';
@@ -941,11 +950,11 @@ function updateBuffer(){
   } else {
     els.buffer.textContent = `${STATE.buffer.toUpperCase().padEnd(g.length,'·')} `;
   }
-  renderBoards();
+  if(render) renderBoards();
   syncPokemonPickerActive();
 }
 function handleKey(key){
-  const g=STATE.game; if(!g || g.status!=='playing') return;
+  const g=STATE.game; if(!g || g.status!=='playing' || STATE.inputLocked) return;
   if(key==='Backspace'){STATE.buffer=STATE.buffer.slice(0,-1); updateBuffer(); return;}
   if(key==='Enter'){submitGuess(); return;}
   if(/^[A-Z]$/.test(key) && STATE.buffer.length<g.length){STATE.buffer += key.toLowerCase(); updateBuffer();}
@@ -995,15 +1004,35 @@ function submitGuess(){
   g.guesses.push(guess);
   g.results.push(resultRow);
   STATE.buffer='';
-  for(let b=0;b<g.boards;b++){
-    if(!g.solvedAt[b] && resultRow[b]?.every(n=>n===2)) g.solvedAt[b]=g.guesses.length;
-  }
-  const allSolved = g.solvedAt.every(Boolean);
-  if(allSolved){finishGame(true); return;}
-  if(g.guesses.length >= g.guessLimit){finishGame(false); return;}
-  afterGuessRender();
+  const rowIndex = g.guesses.length - 1;
+  startReveal(rowIndex, () => {
+    for(let b=0;b<g.boards;b++){
+      if(!g.solvedAt[b] && resultRow[b]?.every(n=>n===2)) g.solvedAt[b]=g.guesses.length;
+    }
+    const allSolved = g.solvedAt.every(Boolean);
+    if(allSolved || g.guesses.length >= g.guessLimit){
+      STATE.inputLocked=true;
+      afterGuessRender();
+      setTimeout(()=>finishGame(allSolved), 650);
+      return;
+    }
+    STATE.inputLocked=false;
+    afterGuessRender();
+  });
 }
-function afterGuessRender(){saveCurrentGame(); renderGameMeta(); renderBoards(); renderPokemonPicker(); renderKeyboard(); updateBuffer();}
+function startReveal(rowIndex, done){
+  STATE.inputLocked=true;
+  STATE.revealing={row:rowIndex, started:Date.now()};
+  afterGuessRender();
+  const g=STATE.game;
+  const duration=(g?.length || 5) * 240 + 680;
+  clearTimeout(startReveal.t);
+  startReveal.t=setTimeout(()=>{
+    STATE.revealing=null;
+    done?.();
+  }, duration);
+}
+function afterGuessRender(){saveCurrentGame(); renderGameMeta(); renderBoards(); renderPokemonPicker(); renderKeyboard(); updateBuffer(false);}
 function scoreGuess(guess, answer){
   const res=Array(guess.length).fill(0);
   const counts={};
