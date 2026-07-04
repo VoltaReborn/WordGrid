@@ -1,4 +1,4 @@
-const CACHE_NAME = 'word-grid-v15';
+const CACHE_NAME = 'word-grid-v20';
 const APP_SHELL = [
   './',
   './index.html',

@@ -105,14 +105,14 @@
     .switch.on{background:linear-gradient(135deg,var(--accent),var(--accent-2))}.switch.on:after{left:27px}
     .primaryBtn,.secondaryBtn,.dangerBtn{width:100%;min-height:52px;border-radius:18px;font-weight:950;letter-spacing:.01em;border:1px solid var(--line);box-shadow:0 12px 26px rgba(0,0,0,.16)}
     .primaryBtn{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white}.secondaryBtn{background:var(--panel-2);color:var(--ink)}.dangerBtn{background:rgba(255,107,122,.16);color:var(--danger);border-color:rgba(255,107,122,.36)}
-    .gameMeta{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel);overflow:auto;scrollbar-width:none}
-    .gameMeta::-webkit-scrollbar{display:none}.metaPill{white-space:nowrap;border-radius:999px;padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);font-size:.76rem;color:var(--muted);font-weight:850}.metaPill.good{color:white;background:rgba(79,186,111,.7)}.metaPill.warn{color:white;background:rgba(209,168,69,.7)}
+    .gameMeta{display:flex;gap:8px;align-items:center;justify-content:center;text-align:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel);overflow:auto;scrollbar-width:none}
+    .gameMeta::-webkit-scrollbar{display:none}.metaPill{white-space:nowrap;border-radius:999px;padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);font-size:.76rem;color:var(--muted);font-weight:850}.metaPill.good{color:white;background:rgba(79,186,111,.7)}.metaPill.warn{color:white;background:rgba(209,168,69,.7)}.metaGear{width:34px;height:34px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-size:1rem;font-weight:950;display:grid;place-items:center;flex:0 0 auto}.metaGear:active{transform:scale(.96)}.settingsSelect{width:100%;min-height:46px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:0 12px;font-weight:900;font-size:.95rem;outline:none}
     .gameArea{display:flex;flex-direction:column;flex:1;min-height:0}.boardsScroll{flex:1;min-height:0;overflow:auto;padding:14px 12px;scrollbar-color:var(--accent) rgba(255,255,255,.08);scrollbar-width:thin}
     .boards{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}.boards.single{display:flex;justify-content:center;align-items:flex-start}.boards.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.boards.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}
     .boardCard{border-radius:20px;background:rgba(255,255,255,.04);border:1px solid var(--line);padding:10px;min-width:0}.boardCard.singleBoard{width:max-content;max-width:100%;margin:0 auto;padding:4px;background:transparent;border:0;box-shadow:none}.boardCard.solved{border-color:rgba(79,186,111,.5);box-shadow:0 0 0 1px rgba(79,186,111,.14) inset}.boardCard.failed{border-color:rgba(255,107,122,.45)}
     .boardHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;color:var(--muted);font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.boardCard.singleBoard .boardHead{display:none}.answerReveal{font-size:.72rem;color:var(--accent);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .grid{display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center}.guessRow{display:flex;flex-direction:row;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}.cell{width:var(--cell-size,var(--cell));height:var(--cell-size,var(--cell));flex:0 0 var(--cell-size,var(--cell));border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;text-transform:uppercase;font-weight:950;font-size:calc(var(--cell-size,var(--cell)) * .45);background:var(--panel-2);box-shadow:0 6px 12px rgba(0,0,0,.10);transition:transform .14s ease, background .18s ease, border-color .18s ease}.cell.filled{border-color:rgba(255,255,255,.28)}.cell.correct{background:var(--good);border-color:var(--good);color:white}.cell.present{background:var(--warn);border-color:var(--warn);color:white}.cell.absent{background:var(--bad);border-color:var(--bad);color:white}.cell.target{box-shadow:0 0 0 2px rgba(255,255,255,.12) inset}.cell.pop{animation:pop .18s ease}.cell.flip{animation:flip .36s ease}.cell.revealPending{animation-duration:.58s;animation-timing-function:cubic-bezier(.22,.72,.18,1);animation-fill-mode:both;animation-delay:var(--reveal-delay,0ms);transform-style:preserve-3d;will-change:transform,background,border-color,color}.cell.revealPending.correct{animation-name:revealCorrect}.cell.revealPending.present{animation-name:revealPresent}.cell.revealPending.absent{animation-name:revealAbsent}@keyframes revealCorrect{0%,48%{transform:rotateX(0deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}49%,50%{transform:rotateX(90deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:transparent}51%,100%{transform:rotateX(0deg);background:var(--good);border-color:var(--good);color:white}}@keyframes revealPresent{0%,48%{transform:rotateX(0deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}49%,50%{transform:rotateX(90deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:transparent}51%,100%{transform:rotateX(0deg);background:var(--warn);border-color:var(--warn);color:white}}@keyframes revealAbsent{0%,48%{transform:rotateX(0deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}49%,50%{transform:rotateX(90deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:transparent}51%,100%{transform:rotateX(0deg);background:var(--bad);border-color:var(--bad);color:white}}
-    @keyframes pop{50%{transform:scale(1.08)}}@keyframes flip{50%{transform:rotateX(88deg) scale(.98)}}
+    .grid{display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center}.guessRow{display:flex;flex-direction:row;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap;perspective:760px}.cell{width:var(--cell-size,var(--cell));height:var(--cell-size,var(--cell));flex:0 0 var(--cell-size,var(--cell));border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;text-transform:uppercase;font-weight:950;font-size:calc(var(--cell-size,var(--cell)) * .45);background:var(--panel-2);box-shadow:0 6px 12px rgba(0,0,0,.10);transition:transform .14s ease, background .18s ease, border-color .18s ease, opacity .18s ease;transform-style:preserve-3d;backface-visibility:hidden}.cell.filled{border-color:rgba(255,255,255,.28)}.cell.correct{--reveal-bg:var(--good);--reveal-border:var(--good);--reveal-color:#fff;background:var(--good);border-color:var(--good);color:white}.cell.present{--reveal-bg:var(--warn);--reveal-border:var(--warn);--reveal-color:#fff;background:var(--warn);border-color:var(--warn);color:white}.cell.absent{--reveal-bg:var(--bad);--reveal-border:var(--bad);--reveal-color:#fff;background:var(--bad);border-color:var(--bad);color:white}.cell.target{box-shadow:0 0 0 2px rgba(255,255,255,.12) inset}.cell.pop{animation:pop .18s ease}.cell.flip{animation:flip .36s ease}.cell.revealPending{animation-duration:var(--reveal-duration,.92s);animation-timing-function:cubic-bezier(.22,.68,.18,1);animation-fill-mode:both;animation-delay:var(--reveal-delay,0ms);transform-origin:center center;will-change:transform,background,border-color,color,box-shadow,opacity,filter;transform-style:preserve-3d;background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}.cell.revealPending.revealStyle-turn{animation-name:wgRevealTurn!important}.cell.revealPending.revealStyle-classic{animation-name:wgRevealClassic!important}.cell.revealPending.revealStyle-pop{animation-name:wgRevealPop!important}.cell.revealPending.revealStyle-fade{animation-name:wgRevealFade!important}.cell.revealPending.revealStyle-slide{animation-name:wgRevealSlide!important}.cell.revealPending.revealStyle-spin{animation-name:wgRevealSpin!important}.cell.revealPending.revealStyle-squeeze{animation-name:wgRevealSqueeze!important}@keyframes wgRevealTurn{0%{transform:rotateY(0deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}48%{transform:rotateY(88deg) scale(.995);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink);box-shadow:0 2px 5px rgba(0,0,0,.22)}52%{transform:rotateY(88deg) scale(.995);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color);box-shadow:0 2px 5px rgba(0,0,0,.22)}100%{transform:rotateY(0deg);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}}@keyframes wgRevealClassic{0%{transform:rotateX(0deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}49%{transform:rotateX(90deg);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}51%{transform:rotateX(90deg);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}100%{transform:rotateX(0deg);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}}@keyframes wgRevealPop{0%{transform:scale(1);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}42%{transform:scale(.84);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}58%{transform:scale(1.12);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}100%{transform:scale(1);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}}@keyframes wgRevealFade{0%{opacity:.52;filter:blur(2px);transform:scale(.98);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}44%{opacity:.7;filter:blur(1px);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}100%{opacity:1;filter:blur(0);transform:scale(1);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}}@keyframes wgRevealSlide{0%{transform:translateY(-14px);opacity:.4;background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}46%{transform:translateY(6px);opacity:.78;background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}62%{background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}100%{transform:translateY(0);opacity:1;background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}}@keyframes wgRevealSpin{0%{transform:rotate(-7deg) scale(.92);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}48%{transform:rotate(9deg) scale(.98);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}62%{background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}100%{transform:rotate(0deg) scale(1);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}}@keyframes wgRevealSqueeze{0%{transform:scaleX(1);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}48%{transform:scaleX(.08);background:var(--panel-2);border-color:rgba(255,255,255,.28);color:var(--ink)}54%{transform:scaleX(.08);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}100%{transform:scaleX(1);background:var(--reveal-bg);border-color:var(--reveal-border);color:var(--reveal-color)}}
+    @keyframes pop{50%{transform:scale(1.08)}}@keyframes flip{50%{transform:rotateY(88deg) scale(.98)}}
     .targetPattern{margin:10px auto 4px;text-align:center}.targetPattern .label{font-size:.76rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.targetCells{display:flex;justify-content:center;gap:5px}.reverseHint{display:inline-flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 12px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:.8rem;color:var(--muted);font-weight:900}.reverseHint strong{color:var(--ink);letter-spacing:.08em}.guessRow.activeReverse .cell{box-shadow:0 0 0 2px var(--accent),0 8px 16px rgba(0,0,0,.18)}.guessRow.lockedReverse .cell{filter:saturate(.9) brightness(.9)}
     .keyboardWrap{padding:10px 7px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:rgba(12,16,34,.88);backdrop-filter:blur(14px)}[data-theme="light"] .keyboardWrap{background:rgba(238,243,255,.92)}
     .buffer{min-height:26px;text-align:center;color:var(--muted);font-weight:900;font-size:.8rem;margin-bottom:6px}.kbdRow{display:flex;gap:5px;justify-content:center;margin-bottom:6px}.key{height:44px;min-width:0;flex:1;border-radius:10px;background:var(--bad);border:1px solid var(--line);font-weight:950;text-transform:uppercase;color:var(--ink);box-shadow:0 5px 10px rgba(0,0,0,.12);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.key.wide{flex:1.55;font-size:.72rem}.key.correct{background:var(--good);color:white}.key.present{background:var(--warn);color:white}.key.absent{background:var(--panel-2);color:white}.key:active{transform:translateY(1px)}
@@ -137,11 +137,11 @@
     <div class="scroll">
       <div class="hero">
         <h1>Word Grid</h1>
-        <button class="versionPill" id="versionPill" type="button" aria-label="App update and version"><span id="versionLabel">v15</span><span class="updateDot" aria-hidden="true"></span></button>
+        <button class="versionPill" id="versionPill" type="button" aria-label="App update and version"><span id="versionLabel">v20</span><span class="updateDot" aria-hidden="true"></span></button>
       </div>
       <div class="updatePanel" id="homeUpdatePanel" aria-live="polite">
         <h3>App update</h3>
-        <p id="updateStatusText">Word Grid v15 is running.</p>
+        <p id="updateStatusText">Word Grid v20 is running.</p>
         <div class="updateBtnGrid">
           <button class="primaryBtn" id="checkUpdateBtn" type="button">Check for update</button>
           <button class="primaryBtn hidden" id="forceLatestBtn" type="button">Apply update</button>
@@ -234,7 +234,7 @@
 </div>
 
 <script type="module">
-const VERSION = 'v15';
+const VERSION = 'v20';
 const STORAGE = {
   current: 'word-grid-current-v1',
   stats: 'word-grid-stats-v1',
@@ -243,6 +243,7 @@ const STORAGE = {
 };
 const MULTI_LIMITS = {1:6,2:7,4:9,8:13,16:21,32:37,64:69};
 const LETTER_ROWS = ['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];
+const REVEAL_STYLES = {turn:'Smooth Turn', classic:'Classic Flip', pop:'Bounce Pop', fade:'Fade In', slide:'Slide Up', spin:'Quick Twist', squeeze:'Squeeze Flip'};
 const STATE = {
   screen:'home',
   setup:null,
@@ -307,7 +308,7 @@ const els = {
 };
 
 function safeJsonParse(value, fallback){try{return JSON.parse(value) ?? fallback;}catch{return fallback;}}
-function loadSettings(){return safeJsonParse(localStorage.getItem(STORAGE.settings), {theme:'dark'});} 
+function loadSettings(){return {...{theme:'dark', revealStyle:'turn'}, ...safeJsonParse(localStorage.getItem(STORAGE.settings), {})};} 
 function saveSettings(s){localStorage.setItem(STORAGE.settings, JSON.stringify(s));}
 function loadStats(){return safeJsonParse(localStorage.getItem(STORAGE.stats), {});} 
 function saveStats(s){localStorage.setItem(STORAGE.stats, JSON.stringify(s));}
@@ -701,6 +702,13 @@ function renderGameMeta(){
   const solved=g.solvedAt.filter(Boolean).length;
   if(g.boards>1) pills.push(`${solved}/${g.boards} solved`);
   for(const text of pills){const div=document.createElement('div'); div.className='metaPill'; div.textContent=text; els.gameMeta.appendChild(div);}
+  const gear=document.createElement('button');
+  gear.className='metaGear';
+  gear.type='button';
+  gear.setAttribute('aria-label','Puzzle reveal settings');
+  gear.textContent='⚙️';
+  gear.addEventListener('click', openRevealSettings);
+  els.gameMeta.appendChild(gear);
 }
 function renderTargetPattern(){
   const g=STATE.game;
@@ -757,8 +765,9 @@ function renderBoards(){
           const cls=patternToClass(result[i]);
           cell.classList.add(cls);
           if(STATE.revealing && STATE.revealing.row === r){
-            cell.classList.add('revealPending');
-            cell.style.setProperty('--reveal-delay', `${i * 240}ms`);
+            const revealStyle = REVEAL_STYLES[loadSettings().revealStyle] ? loadSettings().revealStyle : 'turn';
+            cell.classList.add('revealPending', `revealStyle-${revealStyle}`);
+            cell.style.setProperty('--reveal-delay', `${i * 185}ms`);
           }
         }
         row.appendChild(cell);
@@ -1025,7 +1034,7 @@ function startReveal(rowIndex, done){
   STATE.revealing={row:rowIndex, started:Date.now()};
   afterGuessRender();
   const g=STATE.game;
-  const duration=(g?.length || 5) * 240 + 680;
+  const duration=((g?.length || 5) - 1) * 185 + 1020;
   clearTimeout(startReveal.t);
   startReveal.t=setTimeout(()=>{
     STATE.revealing=null;
@@ -1136,6 +1145,24 @@ function showResultModal(g){
     {label:replayLabel, fn:()=>{STATE.setup={modeId:g.modeId,daily:false,boards:g.boards,length:g.length,hard:g.hard}; startGame();}},
     {label:'Home', kind:'secondary', fn:()=>setScreen('home')}
   ]);
+}
+
+
+function openRevealSettings(){
+  const settings=loadSettings();
+  const current = REVEAL_STYLES[settings.revealStyle] ? settings.revealStyle : 'turn';
+  const options = Object.entries(REVEAL_STYLES).map(([value,label])=>`<option value="${value}" ${value===current?'selected':''}>${label}</option>`).join('');
+  showModal('Reveal animation', `<p>Pick a letter reveal style to test. It applies to future submitted guesses.</p><select class="settingsSelect" id="revealStyleSelect">${options}</select><p class="miniNote">Current: <strong>${REVEAL_STYLES[current]}</strong></p>`, [
+    {label:'Done', kind:'secondary'}
+  ]);
+  const select=document.getElementById('revealStyleSelect');
+  select?.addEventListener('change',()=>{
+    const next=select.value;
+    const updated={...loadSettings(), revealStyle: next};
+    saveSettings(updated);
+    toast(`Reveal: ${REVEAL_STYLES[next] || 'Smooth Turn'}`);
+    renderGameMeta();
+  });
 }
 
 function renderStats(){
